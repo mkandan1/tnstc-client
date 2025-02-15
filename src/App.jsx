@@ -14,9 +14,9 @@ import EditRoute from './pages/routes/EditRoute';
 const Login = lazy(() => import('./pages/auth/Login'));
 const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
-const Drivers = lazy(() => import('./pages/drivers/Drivers'));
-const CreateDriver = lazy(() => import('./pages/drivers/CreateDriver'));
-const EditDriver = lazy(() => import('./pages/drivers/EditDriver'));
+const Users = lazy(() => import('./pages/user/AllUsers'));
+const CreateUser = lazy(() => import('./pages/user/CreateUsers'));
+const EditUser = lazy(() => import('./pages/user/EditUser'));
 const RoutesPage = lazy(() => import('./pages/routes/Routes'));
 const Stops = lazy(() => import('./pages/stops/Stops'));
 const CreateBusStop = lazy(() => import('./pages/stops/CreateBusStop'));
@@ -84,15 +84,15 @@ const MainContent = () => {
               <Suspense fallback={<Loading />}>
                 <Routes>
                   <Route path="/manager/dashboard" element={<Dashboard />} />
-                  <Route path="/manager/drivers" element={<Drivers />} />
-                  <Route path="/manager/drivers/new" element={<CreateDriver />} />
+                  <Route path="/manager/users" element={<Users />} />
+                  <Route path="/manager/users/new" element={<CreateUser />} />
                   <Route path="/manager/routes" element={<RoutesPage />} />
                   <Route path="/manager/stops" element={<Stops />} />
                   <Route path="/manager/stops/new" element={<CreateBusStop />} />
                   <Route path="/manager/stops/:id" element={<ViewBusStop />} />
                   <Route path="/manager/routes/new" element={<CreateRoute />} />
                   <Route path="/manager/routes/:id" element={<EditRoute />} />
-                  <Route path="/manager/drivers/:id" element={<EditDriver />} />
+                  <Route path="/manager/users/:id" element={<EditUser />} />
                   <Route path="/manager/account/profile" element={<MyProfile />} />
                   <Route path="/manager/account/settings" element={<Settings />} />
                   <Route path="/admin/dashboard" element={<Dashboard />} />

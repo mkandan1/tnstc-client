@@ -5,17 +5,18 @@ import { TextInput, Textarea, Button, Select } from "flowbite-react";
 import { Tabs } from "flowbite-react";
 import { TabContainer } from "../../components/Layouts/TabContainer.jsx";
 import { useNavigate } from "react-router-dom";
-import driverService from "../../services/driver.service.js";
+import { userService } from "../../services/user.service.js"; // Updated service name
 import toast from "react-hot-toast";
 
-const CreateDriver = () => {
+const CreateUser = () => {
     const navigate = useNavigate();
-    const [driver, setDriver] = useState({
+    const [user, setUser] = useState({
         firstName: '',
         lastName: '',
-        contactNumber: '',
+        phoneNumber: '',
         email: '',
         address: '',
+        role: "driver",  // Default role
         dateOfBirth: '',
         licenseNumber: '',
         gender: 'Male',
@@ -28,40 +29,39 @@ const CreateDriver = () => {
         profilePicture: 'https://www.shutterstock.com/image-vector/blank-avatar-photo-place-holder-600nw-1095249842.jpg',
     });
 
+    const roles = ["driver", "manager", "admin"];
+
     const buttons = [
         {
-            id: 'create-driver',
-            label: driver.addedToDB ? "Save Driver" : "Create Driver",
+            id: 'create-user',
+            label: "Create User",
             icon: "gridicons:add"
         }
     ];
 
-    const handleDriverCreate = async () => {
-        // Handle driver creation logic
-        const creationResponse = await driverService.createDriver(driver)
-            .then(() => {
-                toast.success(`${driver.firstName} (Driver) Account created!`)
-            })
-            .catch((err) => {
-                toast.error(err.message)
-            })
+    const handleUserCreate = async () => {
+        try {
+            await userService.createUser(user);
+            toast.success(`${user.firstName} (${user.role}) account created!`);
+        } catch (err) {
+            toast.error(err.message);
+        }
     };
 
     const onButtonClick = async (id) => {
-        if (id === 'create-driver') {
-            await handleDriverCreate();
-            return true;
+        if (id === 'create-user') {
+            await handleUserCreate();
         }
     };
 
     return (
         <PanelContainer>
             <PageHeader
-                title="Create Driver"
-                description="Fill the below details to create or update the driver profile"
+                title="Create User"
+                description="Fill in the details to create or update the user profile."
                 buttons={buttons}
                 goBack={true}
-                onButtonClick={(id) => onButtonClick(id)}
+                onButtonClick={onButtonClick}
             />
             <TabContainer>
                 <Tabs variant="underline">
@@ -76,10 +76,10 @@ const CreateDriver = () => {
                                 <TextInput
                                     id="first-name"
                                     type="text"
-                                    value={driver.firstName}
-                                    onChange={(e) => setDriver({ ...driver, firstName: e.target.value })}
+                                    value={user.firstName}
+                                    onChange={(e) => setUser({ ...user, firstName: e.target.value })}
                                     required
-                                    placeholder="Enter driver's first name"
+                                    placeholder="Enter first name"
                                 />
                             </div>
 
@@ -91,10 +91,10 @@ const CreateDriver = () => {
                                 <TextInput
                                     id="last-name"
                                     type="text"
-                                    value={driver.lastName}
-                                    onChange={(e) => setDriver({ ...driver, lastName: e.target.value })}
+                                    value={user.lastName}
+                                    onChange={(e) => setUser({ ...user, lastName: e.target.value })}
                                     required
-                                    placeholder="Enter driver's last name"
+                                    placeholder="Enter last name"
                                 />
                             </div>
 
@@ -106,8 +106,8 @@ const CreateDriver = () => {
                                 <TextInput
                                     id="contact-number"
                                     type="text"
-                                    value={driver.contactNumber}
-                                    onChange={(e) => setDriver({ ...driver, contactNumber: e.target.value })}
+                                    value={user.phoneNumber}
+                                    onChange={(e) => setUser({ ...user, phoneNumber: e.target.value })}
                                     required
                                     placeholder="Enter contact number"
                                 />
@@ -121,8 +121,8 @@ const CreateDriver = () => {
                                 <TextInput
                                     id="email"
                                     type="email"
-                                    value={driver.email}
-                                    onChange={(e) => setDriver({ ...driver, email: e.target.value })}
+                                    value={user.email}
+                                    onChange={(e) => setUser({ ...user, email: e.target.value })}
                                     required
                                     placeholder="Enter email address"
                                 />
@@ -136,26 +136,45 @@ const CreateDriver = () => {
                                 <TextInput
                                     id="date-of-birth"
                                     type="date"
-                                    value={driver.dateOfBirth}
-                                    onChange={(e) => setDriver({ ...driver, dateOfBirth: e.target.value })}
+                                    value={user.dateOfBirth}
+                                    onChange={(e) => setUser({ ...user, dateOfBirth: e.target.value })}
                                     required
                                 />
                             </div>
 
-                            {/* License Number */}
+                            {/* Role Selection */}
                             <div>
-                                <label htmlFor="license-number" className="block text-sm font-medium text-gray-700">
-                                    License Number
+                                <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                                    Role
                                 </label>
-                                <TextInput
-                                    id="license-number"
-                                    type="text"
-                                    value={driver.licenseNumber}
-                                    onChange={(e) => setDriver({ ...driver, licenseNumber: e.target.value })}
+                                <Select
+                                    id="role"
+                                    value={user.role}
+                                    onChange={(e) => setUser({ ...user, role: e.target.value })}
                                     required
-                                    placeholder="Enter license number"
-                                />
+                                >
+                                    {roles.map((role) => (
+                                        <option key={role} value={role}>{role.charAt(0).toUpperCase() + role.slice(1)}</option>
+                                    ))}
+                                </Select>
                             </div>
+
+                            {/* License Number (Only for Drivers) */}
+                            {user.role === "driver" && (
+                                <div>
+                                    <label htmlFor="license-number" className="block text-sm font-medium text-gray-700">
+                                        License Number
+                                    </label>
+                                    <TextInput
+                                        id="license-number"
+                                        type="text"
+                                        value={user.licenseNumber}
+                                        onChange={(e) => setUser({ ...user, licenseNumber: e.target.value })}
+                                        required
+                                        placeholder="Enter license number"
+                                    />
+                                </div>
+                            )}
 
                             {/* Gender */}
                             <div>
@@ -164,8 +183,8 @@ const CreateDriver = () => {
                                 </label>
                                 <Select
                                     id="gender"
-                                    value={driver.gender}
-                                    onChange={(e) => setDriver({ ...driver, gender: e.target.value })}
+                                    value={user.gender}
+                                    onChange={(e) => setUser({ ...user, gender: e.target.value })}
                                     required
                                 >
                                     <option value="Male">Male</option>
@@ -182,9 +201,8 @@ const CreateDriver = () => {
                                 <TextInput
                                     id="emergency-contact-name"
                                     type="text"
-                                    value={driver.emergencyContact.name}
-                                    onChange={(e) => setDriver({ ...driver, emergencyContact: { ...driver.emergencyContact, name: e.target.value } })}
-                                    required
+                                    value={user.emergencyContact.name}
+                                    onChange={(e) => setUser({ ...user, emergencyContact: { ...user.emergencyContact, name: e.target.value } })}
                                     placeholder="Enter emergency contact name"
                                 />
                             </div>
@@ -196,24 +214,9 @@ const CreateDriver = () => {
                                 <TextInput
                                     id="emergency-contact-number"
                                     type="text"
-                                    value={driver.emergencyContact.contactNumber}
-                                    onChange={(e) => setDriver({ ...driver, emergencyContact: { ...driver.emergencyContact, contactNumber: e.target.value } })}
-                                    required
+                                    value={user.emergencyContact.contactNumber}
+                                    onChange={(e) => setUser({ ...user, emergencyContact: { ...user.emergencyContact, contactNumber: e.target.value } })}
                                     placeholder="Enter emergency contact number"
-                                />
-                            </div>
-                            {/* Driving Experience */}
-                            <div>
-                                <label htmlFor="driving-experience" className="block text-sm font-medium text-gray-700">
-                                    Driving Experience (in years)
-                                </label>
-                                <TextInput
-                                    id="driving-experience"
-                                    type="number"
-                                    value={driver.drivingExperience}
-                                    onChange={(e) => setDriver({ ...driver, drivingExperience: parseInt(e.target.value, 10) || 0 })}
-                                    required
-                                    placeholder="Enter driving experience in years"
                                 />
                             </div>
 
@@ -224,28 +227,11 @@ const CreateDriver = () => {
                                 </label>
                                 <Textarea
                                     id="address"
-                                    value={driver.address}
-                                    onChange={(e) => setDriver({ ...driver, address: e.target.value })}
-                                    required
-                                    placeholder="Enter driver's address"
+                                    value={user.address}
+                                    onChange={(e) => setUser({ ...user, address: e.target.value })}
+                                    placeholder="Enter address"
                                 />
                             </div>
-
-
-                            {/* Profile Picture */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">
-                                    Profile Picture
-                                </label>
-                                <img src={driver.profilePicture} alt="Driver Profile" className="w-32 h-32 object-cover mb-2" />
-                                <TextInput
-                                    type="text"
-                                    value={driver.profilePicture}
-                                    onChange={(e) => setDriver({ ...driver, profilePicture: e.target.value })}
-                                    placeholder="Enter profile image URL"
-                                />
-                            </div>
-
                         </div>
                     </Tabs.Item>
                 </Tabs>
@@ -254,4 +240,4 @@ const CreateDriver = () => {
     );
 };
 
-export default CreateDriver;
+export default CreateUser;

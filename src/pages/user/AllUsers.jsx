@@ -1,12 +1,12 @@
 import { PanelContainer } from "../../components/Layouts/Container";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { driverService } from "../../services"; // Assuming driverService handles API calls
+import { userService } from "../../services/user.service"; // Updated service
 import PageHeader from "../../components/Layouts/PageHeader";
 import NormalTable from "../../components/ui/table/NormalTable";
 
-const Drivers = () => {
-    const [drivers, setDrivers] = useState([]);
+const Users = () => {
+    const [users, setUsers] = useState([]);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -17,16 +17,16 @@ const Drivers = () => {
             field: 'fullName', // Derived from firstName and lastName
         },
         {
+            label: 'Role',
+            field: 'role', // Displays user role (Driver, Manager, Admin, etc.)
+        },
+        {
             label: 'Contact Number',
             field: 'contactNumber',
         },
         {
-            label: 'License Number',
-            field: 'licenseNumber',
-        },
-        {
-            label: 'Assigned Buses',
-            field: 'assignedBuses', // Will display a count or list of buses
+            label: 'Email',
+            field: 'email',
         },
         {
             label: 'Status',
@@ -35,15 +35,16 @@ const Drivers = () => {
     ];
 
     const handleEdit = (row) => {
-        navigate(row._id); // Navigate to the driver's detail or edit page
+        console.log("Clicked")
+        navigate(`${row._id}`); 
     };
 
     const buttons = [
-        { id: "add-driver", label: "Add Driver", icon: "gridicons:create" },
+        { id: "add-user", label: "Add User", icon: "gridicons:create" },
     ];
 
     const onButtonClick = async (id) => {
-        if (id === 'add-driver') {
+        if (id === 'add-user') {
             navigate('new');
             return true;
         }
@@ -65,18 +66,18 @@ const Drivers = () => {
     useEffect(() => {
         let isMounted = true;
 
-        const fetchDrivers = async () => {
+        const fetchUsers = async () => {
             try {
                 setLoading(true);
-                const data = await driverService.getAllDrivers(); // Fetch drivers from API
+                const data = await userService.getAllUsers(); // Fetch users from API
                 if (isMounted) {
-                    const formattedData = data.map(driver => ({
-                        ...driver,
-                        fullName: `${driver.firstName} ${driver.lastName}`,
-                        assignedBuses: driver.assignedBuses?.length || 0,
-                        isActive: driver.isActive ? "Active" : "Inactive",
+                    const formattedData = data.results.map(user => ({
+                        ...user,
+                        fullName: `${user.firstName} ${user.lastName}`,
+                        isActive: user.isActive ? "Active" : "Inactive",
                     }));
-                    setDrivers(formattedData);
+                    setUsers(formattedData);
+                    console.log(users)
                 }
             } catch (err) {
                 setError(err.message);
@@ -85,7 +86,7 @@ const Drivers = () => {
             }
         };
 
-        fetchDrivers();
+        fetchUsers();
 
         return () => {
             isMounted = false;
@@ -95,16 +96,16 @@ const Drivers = () => {
     return (
         <PanelContainer>
             <PageHeader
-                title="Drivers"
-                description={`You have ${drivers.length} drivers`}
+                title="Users"
+                description={`You have ${users.length} users`}
                 buttons={buttons}
                 onButtonClick={(id) => onButtonClick(id)}
             />
             <div className="w-screen md:w-auto overflow-x-auto">
-                <NormalTable headers={headers} data={drivers} actions={actions} isLoading={loading} />
+                <NormalTable headers={headers} data={users} actions={actions} isLoading={loading} />
             </div>
         </PanelContainer>
     );
 };
 
-export default Drivers;
+export default Users;
