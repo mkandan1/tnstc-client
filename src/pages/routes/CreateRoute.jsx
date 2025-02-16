@@ -8,6 +8,7 @@ import { PanelContainer } from '../../components/Layouts/Container';
 import PageHeader from "../../components/Layouts/PageHeader";
 import { MapContainer } from "../../components/features/MapContainer";
 import { busStopService, routeService } from '../../services';
+import toast from "react-hot-toast";
 
 const API_KEY = import.meta.env.VITE_MAP_API_KEY;
 
@@ -75,7 +76,7 @@ const CreateRoute = () => {
 
   const saveRoute = async () => {
     if (!userQuery.origin || !userQuery.destination || !createdRoute) {
-      alert("Please enter origin, destination, and generate a route.");
+      toast.error("Please enter origin, destination, and generate a route.");
       return;
     }
   
@@ -95,11 +96,11 @@ const CreateRoute = () => {
   
     try {
       const response = await routeService.createRoute(routeData);
-      alert("Route saved successfully!");
+      toast.success("Route saved successfully!");
       console.log("Saved route:", response);
     } catch (error) {
       console.error("Error saving route:", error);
-      alert("Failed to save route. Please try again.");
+      toast.error("Failed to save route. Please try again.");
     }
   };
 

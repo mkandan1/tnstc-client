@@ -10,6 +10,9 @@ import { useMaintenance } from './context/useMaintenance';
 import { authendicateAndFetchUser } from './services/user.service';
 import { useDispatch } from 'react-redux';
 import EditRoute from './pages/routes/EditRoute';
+import Buses from './pages/buses/Buses';
+import { CreateBus } from './pages/buses/CreateBus';
+import { EditBus } from './pages/buses/EditBus';
 
 const Login = lazy(() => import('./pages/auth/Login'));
 const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'));
@@ -88,6 +91,9 @@ const MainContent = () => {
                   <Route path="/manager/users/new" element={<CreateUser />} />
                   <Route path="/manager/routes" element={<RoutesPage />} />
                   <Route path="/manager/stops" element={<Stops />} />
+                  <Route path="/manager/buses" element={<Buses />} />
+                  <Route path="/manager/buses/new" element={<CreateBus />} />
+                  <Route path="/manager/buses/:id" element={<EditBus />} />
                   <Route path="/manager/stops/new" element={<CreateBusStop />} />
                   <Route path="/manager/stops/:id" element={<ViewBusStop />} />
                   <Route path="/manager/routes/new" element={<CreateRoute />} />

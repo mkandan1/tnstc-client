@@ -51,7 +51,7 @@ const Routes = () => {
     const fetchRoutes = async () => {
       try {
         setLoading(true);
-        const data = await routeService.getAllRoutes(); // Fetch routes from API
+        const data = await routeService.getAllRoutes();
         if (isMounted) {
           const formattedData = data.map((route) => ({
             ...route,

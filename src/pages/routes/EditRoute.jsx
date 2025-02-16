@@ -9,6 +9,7 @@ import PageHeader from "../../components/Layouts/PageHeader";
 import { MapContainer } from "../../components/features/MapContainer";
 import { busStopService, routeService } from '../../services';
 import { getId } from "../../services/url.service";
+import toast from "react-hot-toast";
 
 const EditRoute = () => {
     const routeId = getId();
@@ -78,7 +79,7 @@ const EditRoute = () => {
 
     const saveRoute = async () => {
         if (!userQuery.origin || !userQuery.destination || !routeData) {
-            alert("Please enter origin, destination, and generate a route.");
+            toast.error("Please enter origin, destination, and generate a route.");
             return;
         }
 
@@ -96,10 +97,10 @@ const EditRoute = () => {
         console.log(updatedRouteData)
         try {
             await routeService.updateRoute(routeId, updatedRouteData);
-            alert("Route updated successfully!");
+            toast.success("Route updated successfully!");
         } catch (error) {
             console.error("Error updating route:", error);
-            alert("Failed to update route. Please try again.");
+            toast.error("Failed to update route. Please try again.");
         }
     };
 
