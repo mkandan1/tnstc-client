@@ -51,7 +51,6 @@ const ScheduledBuses = () => {
         setLoading(true);
         const data = await scheduledBusService.getAllScheduledBuses();
         if (isMounted) {
-          // Convert scheduleTime to IST before setting state
           const formattedData = data.map((schedule) => ({
             ...schedule,
             scheduleTime: convertToIST(schedule.scheduleTime),
