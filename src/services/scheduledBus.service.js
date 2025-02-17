@@ -7,7 +7,7 @@ export const scheduledBusService = {
    * Fetch all scheduled buses
    * @returns {Promise}
    */
-  getAllScheduledBuses: async ({ driverId, busStop }) => {
+  getAllScheduledBuses: async ({ driverId, busStop, status }) => {
     try {
       let url = BASE_URL;
       const queryParams = [];
@@ -18,6 +18,10 @@ export const scheduledBusService = {
       
       if (busStop) {
         queryParams.push(`busStop=${busStop}`);
+      }
+
+      if (busStop) {
+        queryParams.push(`status=${status}`);
       }
   
       // Add the query params to the URL if available

@@ -17,7 +17,6 @@ const apiRequest = async (method, url, data, isMultipart = false) => {
   if (!token && location != "/") {
     await getNewAccessToken();
     token = getAccessToken();
-    obtainCount++
   }
 
   const headers = {

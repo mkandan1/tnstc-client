@@ -9,7 +9,7 @@ const LeftSidePanel = ({ selectedBusStop }) => {
         if (selectedBusStop) {
             const getSchedules = async () => {
                 try {
-                    const response = await scheduledBusService.getAllScheduledBuses({ busStop: selectedBusStop._id });
+                    const response = await scheduledBusService.getAllScheduledBuses({ busStop: selectedBusStop._id, status: ['Scheduled', "On Route"] });
                     if (response) {
                         setScheduledBuses(response);  // Set data from the response
                     } else {
