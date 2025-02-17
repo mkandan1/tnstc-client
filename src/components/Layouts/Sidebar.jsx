@@ -42,7 +42,7 @@ export const Sidebar = () => {
             );
 
             let serverResponse = await logoutPromise;
-            if (serverResponse.success) {
+            if (serverResponse) {
                 delayedNavigation('/login', 3000);
             }
         } catch (error) {
