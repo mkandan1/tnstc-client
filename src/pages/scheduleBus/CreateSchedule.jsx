@@ -10,7 +10,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { TabContainer } from "../../components/Layouts/TabContainer";
 
-export const CreateSchedule = () => {
+const CreateSchedule = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -153,3 +153,5 @@ export const CreateSchedule = () => {
     </PanelContainer>
   );
 }
+
+export default CreateSchedule;

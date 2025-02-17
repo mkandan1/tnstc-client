@@ -12,7 +12,7 @@ import { TabContainer } from "../../components/Layouts/TabContainer";
 import toast from "react-hot-toast";
 import urlService from "../../services/url.service";
 
-export const EditSchedule = () => {
+const EditSchedule = () => {
   const { id } = useParams();
   const scheduleId = urlService.getId();
   const navigate = useNavigate();
@@ -181,3 +181,5 @@ export const EditSchedule = () => {
     </PanelContainer>
   );
 };
+
+export default EditSchedule;

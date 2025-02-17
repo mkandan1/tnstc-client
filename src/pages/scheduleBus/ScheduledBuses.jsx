@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import NormalTable from '../../components/ui/table/NormalTable';
 import { convertToIST } from '../../util/convertToIST';
 
-export const ScheduledBuses = () => {
+const ScheduledBuses = () => {
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [schedules, setSchedules] = useState([]);
@@ -92,3 +92,5 @@ export const ScheduledBuses = () => {
     </PanelContainer>
   );
 };
+
+export default ScheduledBuses;
