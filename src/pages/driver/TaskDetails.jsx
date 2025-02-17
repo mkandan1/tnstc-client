@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { scheduledBusService, urlService } from "../../services";
 import { PanelContainer } from "../../components/Layouts/Container";
 import PageHeader from "../../components/Layouts/PageHeader";
+import toast from "react-hot-toast";
 
 const TaskDetails = () => {
   const taskId = urlService.getId(); // Getting the taskId from the URL
@@ -13,16 +14,17 @@ const TaskDetails = () => {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [locationUpdateInterval, setLocationUpdateInterval] = useState(null);
   const navigate = useNavigate();
-
-  console.log("Component Loaded - Task ID:", taskId);
+  const geolocationOptions = {
+    enableHighAccuracy: true, // Requests the most accurate location data
+    timeout: 5000, // Waits a max of 5 seconds for a location response
+    maximumAge: 0, // Forces the browser to get fresh location data
+  };
 
   // Fetch task details
   useEffect(() => {
     const fetchTaskDetails = async () => {
       try {
-        console.log("Fetching task details...");
         const response = await scheduledBusService.getScheduledBusById(taskId);
-        console.log("Task details received:", response);
         setTaskDetails(response);
       } catch (err) {
         console.error("Error fetching task details:", err);
@@ -37,33 +39,29 @@ const TaskDetails = () => {
 
   // Start Ride
   const handleStartRide = async () => {
-    console.log("Start Ride button clicked");
-  
+
     if (!navigator.geolocation) {
       console.error("Geolocation is not supported by this browser");
       setLocationPermissionDenied(true);
       return;
     }
-  
+
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        console.log("User location retrieved:", position.coords);
-  
+
         try {
           console.log("Sending start ride request...");
           await scheduledBusService.startRide(taskId, {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           });
-  
-          alert("Ride started successfully.");
-  
+
+
           // ✅ Make sure status remains 'On Route'
           setTaskDetails((prev) => ({ ...prev, status: "On Route" }));
-  
-          // ✅ Start location tracking
-          console.log("Starting location tracking...");
+
           startLocationTracking();
+          toast.success("Ride has been started")
         } catch (err) {
           console.error("Error starting the ride:", err);
           alert("Failed to start the ride. Please try again.");
@@ -76,40 +74,33 @@ const TaskDetails = () => {
       }
     );
   };
-  
+
 
   // Start automatic location updates every 10 seconds
   const startLocationTracking = () => {
     if (locationUpdateInterval) {
-      console.log("Location tracking is already running");
       return;
     }
-  
-    console.log("Setting up location tracking interval...");
-  
+
+
     const intervalId = setInterval(() => {
-      console.log("Checking ride status before updating location...");
-  
+
       if (taskDetails?.status === "Completed") {
-        console.log("Ride marked as completed, stopping location tracking.");
         clearInterval(intervalId);
         setLocationUpdateInterval(null);
         return;
       }
-  
-      console.log("Fetching user location for update...");
+
       navigator.geolocation.getCurrentPosition(
         async (position) => {
-          console.log("New location retrieved:", position.coords);
-  
+
           try {
-            console.log("Sending location update to API...");
             await scheduledBusService.updateBusLocation(taskId, {
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
+              accuracy: position.coords.accuracy, // ✅ Track accuracy level
             });
-  
-            console.log("✅ Location updated successfully in backend.");
+
             setCurrentLocation({
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
@@ -120,27 +111,25 @@ const TaskDetails = () => {
         },
         (error) => {
           console.error("❌ Error getting location:", error.message);
-        }
+        },
+        geolocationOptions // ✅ Pass high accuracy options
       );
-    }, 5000); // Updates location every 10 seconds
-  
-    console.log("✅ Location tracking started. Interval ID:", intervalId);
+
+    }, 2000); // Updates location every 10 seconds
+
     setLocationUpdateInterval(intervalId);
   };
-  
+
 
   // Stop Ride
   const handleCompleteRide = async () => {
-    console.log("Complete Ride button clicked");
 
     try {
-      console.log("Sending complete ride request...");
       await scheduledBusService.completeRide(taskId);
-      alert("Ride completed successfully.");
+      toast.success("Ride completed successfully.");
 
       setTaskDetails((prev) => ({ ...prev, status: "Completed" }));
 
-      console.log("Stopping location tracking...");
       if (locationUpdateInterval) {
         clearInterval(locationUpdateInterval);
         setLocationUpdateInterval(null);
@@ -155,7 +144,6 @@ const TaskDetails = () => {
   useEffect(() => {
     return () => {
       if (locationUpdateInterval) {
-        console.log("Component unmounting, clearing location tracking...");
         clearInterval(locationUpdateInterval);
       }
     };
@@ -175,8 +163,8 @@ const TaskDetails = () => {
     taskDetails.status === "Scheduled"
       ? { id: "start-ride", label: "Start Ride", icon: "mdi:play" }
       : taskDetails.status === "On Route"
-      ? { id: "complete-ride", label: "Complete Ride", icon: "mdi:check" }
-      : null;
+        ? { id: "complete-ride", label: "Complete Ride", icon: "mdi:check" }
+        : null;
 
   return (
     <PanelContainer>
