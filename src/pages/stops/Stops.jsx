@@ -63,7 +63,7 @@ const Stops = () => {
     <PanelContainer>
       <PageHeader
         title={'Bus Stops'}
-        description={`You have ${0} bus stops`}
+        description={`You have ${busStops.length} bus stops`}
         buttons={buttons}
         onButtonClick={() => navigate('new')}
       />

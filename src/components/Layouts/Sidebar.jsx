@@ -54,13 +54,6 @@ export const Sidebar = () => {
                 <div className="my-5 md:my-8">
                     {user?.role == 'admin' && <AdminSidebar />}
                     {user?.role == 'manager' && <ManagerSidebar />}
-
-                    <p className="text-gray-500 uppercase text-sm font-semibold tracking-tight">Account</p>
-                    <ul className="my-5 md:my-6 flex flex-col gap-4 md:gap-7">
-                        <NavItem text={'My Profile'} href={'/lms/account/profile'} icon={'gg:profile'} />
-                        <NavItem text={'Settings'} href={'/lms/account/settings'} icon={'fluent:settings-24-filled'} />
-                        <NavItem text={'Log out'} href={'#'} icon={'ri:logout-box-line'} onClick={() => handleLogOut()} />
-                    </ul>
                 </div>
                 <div className="mt-20">
                     <p className="text-[12.5px] text-blueGray-400">&copy; 2024 Bright Academy, Developed with ❤️ by Looficats.</p>

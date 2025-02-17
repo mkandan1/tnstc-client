@@ -77,6 +77,16 @@ const userService = {
             throw error;
         }
     },
+
+    currentUser: async () => {
+        try {
+            const response = await get('/auth/currentUser');
+            return response.user
+        } catch (error) {
+            console.error(`Error getting user data: `, error.message)
+            throw error
+        }
+    }
 };
 
 const getNewAccessToken = async () => {

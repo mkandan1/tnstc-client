@@ -1,27 +1,28 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { PanelContainer } from "../../components/Layouts/Container";
 import PageHeader from "../../components/Layouts/PageHeader";
-import busService from '../../services/bus.service';
+import scheduledBusService from '../../services/scheduledbus.service';
 import { useNavigate } from 'react-router-dom';
 import NormalTable from '../../components/ui/table/NormalTable';
+import { convertToIST } from '../../util/convertToIST';
 
-export default function Buses() {
+export const ScheduledBuses = () => {
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [buses, setBuses] = useState([]);
+  const [schedules, setSchedules] = useState([]);
   const navigate = useNavigate();
 
   const buttons = [
-    { id: 'create-bus', label: 'Create Bus', icon: 'gridicons:create' }
+    { id: 'create-schedule', label: 'Create Schedule', icon: 'gridicons:create' }
   ];
 
   const headers = [
-    { label: "Bus No", field: "busNumber" },
-    { label: "Booking Method", field: "ticketingSystem" },
-    { label: "Passenger Type", field: "passengerType" },
-    { label: "Bus Type", field: "busType" },
-    { label: "Fuel Type", field: "fuelType" },
-  ]
+    { label: "Bus No", field: "bus.busNumber" },
+    { label: "Driver", field: "driver.firstName" },
+    { label: "Route", field: "route.routeName" },
+    { label: "Schedule Time", field: "scheduleTime" },
+    { label: "Status", field: "status" },
+  ];
 
   const actions = [
     {
@@ -37,59 +38,57 @@ export default function Buses() {
   ];
 
   const onButtonClick = (id) => {
-    if(id == 'create-bus'){
+    if (id === 'create-schedule') {
       navigate("new");
     }
-  }
+  };
 
   useEffect(() => {
     let isMounted = true;
 
-    const fetchRoutes = async () => {
+    const fetchSchedules = async () => {
       try {
         setLoading(true);
-        const data = await busService.getAllBuses();
+        const data = await scheduledBusService.getAllScheduledBuses();
         if (isMounted) {
-          const formattedData = data.buses.map((route) => ({
-            ...route,
-            isActive: route.isAc ? "Active" : "Inactive",
+          // Convert scheduleTime to IST before setting state
+          const formattedData = data.map((schedule) => ({
+            ...schedule,
+            scheduleTime: convertToIST(schedule.scheduleTime),
           }));
-          setBuses(formattedData);
+          setSchedules(formattedData);
         }
       } catch (err) {
         setError(err.message);
       } finally {
-        if (isMounted)
-          setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
-    fetchRoutes();
+    fetchSchedules();
 
     return () => {
       isMounted = false;
     };
   }, []);
 
-
   return (
     <PanelContainer>
       <PageHeader
-        title={'Buses'}
+        title={'Schedules'}
         buttons={buttons}
-        description={`You have ${buses.length} buses`}
         onButtonClick={onButtonClick}
       />
 
       <div className="w-screen md:w-auto overflow-x-auto">
         <NormalTable
           headers={headers}
-          data={buses}
+          data={schedules}
           actions={actions}
           isLoading={isLoading}
           error={error}
         />
       </div>
     </PanelContainer>
-  )
-}
+  );
+};

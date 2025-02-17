@@ -13,6 +13,9 @@ import EditRoute from './pages/routes/EditRoute';
 import Buses from './pages/buses/Buses';
 import { CreateBus } from './pages/buses/CreateBus';
 import { EditBus } from './pages/buses/EditBus';
+import { ScheduledBuses } from './pages/scheduleBus/scheduledBuses';
+import { CreateSchedule } from './pages/scheduleBus/createSchedule';
+import { EditSchedule } from './pages/scheduleBus/EditSchedule';
 
 const Login = lazy(() => import('./pages/auth/Login'));
 const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'));
@@ -86,18 +89,21 @@ const MainContent = () => {
               <Toaster position="top-right" />
               <Suspense fallback={<Loading />}>
                 <Routes>
-                  <Route path="/manager/dashboard" element={<Dashboard />} />
+                  <Route path="/manager/home" element={<Dashboard />} />
                   <Route path="/manager/users" element={<Users />} />
                   <Route path="/manager/users/new" element={<CreateUser />} />
-                  <Route path="/manager/routes" element={<RoutesPage />} />
                   <Route path="/manager/stops" element={<Stops />} />
                   <Route path="/manager/buses" element={<Buses />} />
                   <Route path="/manager/buses/new" element={<CreateBus />} />
                   <Route path="/manager/buses/:id" element={<EditBus />} />
                   <Route path="/manager/stops/new" element={<CreateBusStop />} />
                   <Route path="/manager/stops/:id" element={<ViewBusStop />} />
+                  <Route path="/manager/routes" element={<RoutesPage />} />
                   <Route path="/manager/routes/new" element={<CreateRoute />} />
                   <Route path="/manager/routes/:id" element={<EditRoute />} />
+                  <Route path="/manager/schedules" element={<ScheduledBuses />} />
+                  <Route path="/manager/schedules/new" element={<CreateSchedule />} />
+                  <Route path="/manager/schedules/:id" element={<EditSchedule />} />
                   <Route path="/manager/users/:id" element={<EditUser />} />
                   <Route path="/manager/account/profile" element={<MyProfile />} />
                   <Route path="/manager/account/settings" element={<Settings />} />
