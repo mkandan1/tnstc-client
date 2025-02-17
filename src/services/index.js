@@ -4,4 +4,4 @@ import busStopService from './stop.service'
 import busService from './bus.service'
 import scheduledBusService from './scheduledbus.service'
 
-export { urlService, routeService, busStopService, scheduledBusService }
+export { urlService, routeService, busStopService, busService, scheduledBusService }
