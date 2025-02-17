@@ -10,6 +10,10 @@ import { useMaintenance } from './context/useMaintenance';
 import { authendicateAndFetchUser } from './services/user.service';
 import { useDispatch } from 'react-redux';
 
+
+const Home = lazy(() => import('./pages/client/Home'));
+const DriverDashboard = lazy(() => import('./pages/driver/DriverDashboard'));
+const TaskDetails = lazy(() => import('./pages/driver/TaskDetails'));
 const EditRoute = lazy(() => import('./pages/routes/EditRoute'));
 const Buses = lazy(() => import('./pages/buses/Buses'));
 const CreateBus = lazy(() => import('./pages/buses/CreateBus'));
@@ -66,6 +70,14 @@ function App() {
             </Suspense>
           }
         />
+        <Route
+          path="/"
+          element={
+            <Suspense fallback={<Loading />}>
+              <Home />
+            </Suspense>
+          }
+        />
         <Route path="/*" element={<MainContent />} />
       </Routes>
     </Router>
@@ -73,8 +85,8 @@ function App() {
 }
 
 const MainContent = () => {
-  const location = useLocation();
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/forgot-password';
+  const location = useLocation().pathname;
+  const isAuthPage = location === '/login' || location === '/forgot-password' || location === '/';
 
   return (
     <>
@@ -87,6 +99,8 @@ const MainContent = () => {
               <Toaster position="top-right" />
               <Suspense fallback={<Loading />}>
                 <Routes>
+                  <Route path="/driver/home" element={<DriverDashboard />} />
+                  <Route path="/driver/home/:id" element={<TaskDetails />} />
                   <Route path="/manager/home" element={<Dashboard />} />
                   <Route path="/manager/users" element={<Users />} />
                   <Route path="/manager/users/new" element={<CreateUser />} />
@@ -104,7 +118,9 @@ const MainContent = () => {
                   <Route path="/manager/schedules/:id" element={<EditSchedule />} />
                   <Route path="/manager/users/:id" element={<EditUser />} />
                   <Route path="/manager/account/profile" element={<MyProfile />} />
+                  <Route path="/driver/account/profile" element={<MyProfile />} />
                   <Route path="/manager/account/settings" element={<Settings />} />
+                  <Route path="/driver/account/settings" element={<Settings />} />
                   <Route path="/admin/dashboard" element={<Dashboard />} />
                   <Route path="/admin/account/profile" element={<MyProfile />} />
                   <Route path="/admin/account/settings" element={<Settings />} />

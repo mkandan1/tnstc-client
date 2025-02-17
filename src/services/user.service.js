@@ -96,7 +96,7 @@ const getNewAccessToken = async () => {
             document.cookie = `x-token=${token}; path='/';`;
         }
     } catch (error) {
-        if (error.response && error.response.status === 401 && window.location.pathname !== "/login") {
+        if (error.response && error.response.status === 401 && window.location.pathname !== "/login" && window.location.pathname !== "/") {
             console.log('Session expired! Please log in again.')
             window.location.href = "/login"
         }

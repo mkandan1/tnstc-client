@@ -8,6 +8,7 @@ import { delayedNavigation } from "../../util/navigate";
 import ManagerSidebar from "./ManagerSidebar";
 import AdminSidebar from "./AdminSidebar";
 import { useState, useEffect } from "react";
+import DriverSidebar from "./DriverSidebar";
 
 export const Sidebar = () => {
     const dispatch = useDispatch();
@@ -71,6 +72,7 @@ export const Sidebar = () => {
                         <>
                             {user?.role === 'admin' && <AdminSidebar handleLogOut={handleLogOut} />}
                             {user?.role === 'manager' && <ManagerSidebar handleLogOut={handleLogOut} />}
+                            {user?.role === 'driver' && <DriverSidebar handleLogOut={handleLogOut} />}
                         </>
                     )}
                 </div>

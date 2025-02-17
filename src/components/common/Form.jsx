@@ -14,7 +14,7 @@ export const LoginForm = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState({ state: false, message: "" });
     const navigate = useNavigate();
-    
+
     const buttons = [
         { id: "login", label: "Login", icon: "ic:round-login" },
     ];
@@ -40,8 +40,14 @@ export const LoginForm = () => {
         try {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/v1/auth/login`, { email, password });
             if (response.data.success) {
-                toast.success('Logged in successfully');
-                window.location.href = '/manager/home';
+                if (response.data.user.role == 'manager' || response.data.user.role == 'admin') {
+                    toast.success('Logged in successfully');
+                    window.location.href = '/manager/home';
+                }
+                else {
+                    toast.success('Logged in successfully');
+                    window.location.href = '/driver/home';
+                }
             } else {
                 setError({ state: true, message: "Wrong email or password." });
             }
@@ -75,7 +81,7 @@ export const LoginForm = () => {
             </div>
 
             <div className="my-6 flex flex-col gap-y-5 items-center">
-                <ButtonList buttons={buttons} onClick={(id)=> handleUserLogin()}/>
+                <ButtonList buttons={buttons} onClick={(id) => handleUserLogin()} />
                 {/* <Button label={"Login"} isLoading={isLoading} size="large" onClick={handleUserLogin} /> */}
                 <Link to="/forgot-password" className="text-blue-500 text-sm flex items-center gap-x-2">
                     <Icon icon="carbon:password" />

@@ -11,11 +11,13 @@ const preprocessData = (data) => {
 };
 
 const apiRequest = async (method, url, data, isMultipart = false) => {
+  const location = window.location.pathname;
   let token = getAccessToken();
 
-  if (!token) {
+  if (!token && location != "/") {
     await getNewAccessToken();
     token = getAccessToken();
+    obtainCount++
   }
 
   const headers = {
