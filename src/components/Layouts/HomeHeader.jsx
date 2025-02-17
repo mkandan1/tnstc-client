@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
+import { Link } from "react-router-dom";
 
 export const HomeHeader = ({ busStops, selectedBusStop, setSelectedBusStop }) => {
     const [searchQuery, setSearchQuery] = useState("");
@@ -76,11 +77,13 @@ export const HomeHeader = ({ busStops, selectedBusStop, setSelectedBusStop }) =>
 
                 {/* Right: Icons */}
                 <div className="flex items-center gap-4">
-                    <Icon
-                        icon="mdi:account-circle"
-                        className="cursor-pointer hover:text-gray-300"
-                        width="24"
-                    />
+                    <Link to={'/login'}>
+                        <Icon
+                            icon="mdi:account-circle"
+                            className="cursor-pointer hover:text-gray-300"
+                            width="24"
+                        />
+                    </Link>
                     <Icon
                         icon="mdi:menu"
                         className="cursor-pointer hover:text-gray-300"
