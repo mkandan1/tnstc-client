@@ -32,7 +32,7 @@ export const LiveTrackingMap = ({ zoom = 15, selectedBusStop }) => {
     const fetchOnRouteBuses = async () => {
       try {
         const response = await scheduledBusService.getAllScheduledBuses({
-          status: "On Route",
+          status: ["On Route"],
         });
         setOnRouteBuses(response);
         updateBusMarkers(response);
