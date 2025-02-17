@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
@@ -9,14 +9,14 @@ import Maintenance from './pages/Maintanence';
 import { useMaintenance } from './context/useMaintenance';
 import { authendicateAndFetchUser } from './services/user.service';
 import { useDispatch } from 'react-redux';
-import EditRoute from './pages/routes/EditRoute';
-import Buses from './pages/buses/Buses';
-import { CreateBus } from './pages/buses/CreateBus';
-import { EditBus } from './pages/buses/EditBus';
-import { ScheduledBuses } from './pages/scheduleBus/scheduledBuses';
-import { CreateSchedule } from './pages/scheduleBus/createSchedule';
-import { EditSchedule } from './pages/scheduleBus/EditSchedule';
 
+const EditRoute = lazy(() => import('./pages/routes/EditRoute'));
+const Buses = lazy(() => import('./pages/buses/Buses'));
+const CreateBus = lazy(() => import('./pages/buses/CreateBus'));
+const EditBus = lazy(() => import('./pages/buses/EditBus'));
+const ScheduledBuses = lazy(() => import('./pages/scheduleBus/scheduledBuses'));
+const CreateSchedule = lazy(() => import('./pages/scheduleBus/createSchedule'));
+const EditSchedule = lazy(() => import('./pages/scheduleBus/EditSchedule'));
 const Login = lazy(() => import('./pages/auth/Login'));
 const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -41,10 +41,8 @@ function App() {
     }
   }, [statusChecked, maintenance]);
 
-
-
   if (!statusChecked) {
-    return
+    return;
   }
   if (maintenance) {
     return <Maintenance />;
