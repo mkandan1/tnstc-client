@@ -28,6 +28,7 @@ apiClient.interceptors.response.use(
                     break;
                 case 403:
                     toast.error("Forbidden. You don't have permission to perform this action.");
+                    delayedNavigation('/login', 1000)
                     break;
                 case 404:
                     toast.error(data.message || "Resource not found.");
