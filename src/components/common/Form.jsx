@@ -41,7 +41,7 @@ export const LoginForm = () => {
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/v1/auth/login`, { email, password });
             if (response.data.success) {
                 toast.success('Logged in successfully');
-                window.location.href = '/manager/dashboard';
+                window.location.href = '/manager/home';
             } else {
                 setError({ state: true, message: "Wrong email or password." });
             }
