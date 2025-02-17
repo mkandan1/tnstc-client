@@ -49,7 +49,8 @@ const ScheduledBuses = () => {
     const fetchSchedules = async () => {
       try {
         setLoading(true);
-        const data = await scheduledBusService.getAllScheduledBuses();
+        const data = await scheduledBusService.getAllScheduledBuses({});
+        console.log(data)
         if (isMounted) {
           const formattedData = data.map((schedule) => ({
             ...schedule,
