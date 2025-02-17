@@ -76,7 +76,13 @@ export const LiveTrackingMap = ({ zoom = 15, selectedBusStop }) => {
       { enableHighAccuracy: true }
     );
 
-    return () => mapInstance.current?.remove();
+    return () => {
+      if (mapInstance.current) {
+        mapInstance.current.remove();
+        mapInstance.current = null;
+      }
+    };
+    
   }, [selectedBusStop, busStops]);
 
   // Calculate direction bearing
@@ -100,21 +106,24 @@ export const LiveTrackingMap = ({ zoom = 15, selectedBusStop }) => {
 
   // Update bus markers
   const updateBusMarkers = (buses) => {
-    if (!mapInstance.current) return;
-
+    if (!mapInstance.current || !mapRef.current) {
+      console.warn("Map instance is not available. Skipping marker updates.");
+      return;
+    }
+  
     buses.forEach((bus) => {
+      if (!bus.location?.latitude || !bus.location?.longitude) {
+        console.warn(`Invalid bus location: ${bus.bus?.busNumber}`);
+        return;
+      }
+  
       const { latitude, longitude } = bus.location;
-      if (!latitude || !longitude) return;
-
-      const prevLocation = prevLocations.current.get(bus._id);
-      prevLocations.current.set(bus._id, { latitude, longitude });
-
-      const bearing = prevLocation ? calculateBearing(prevLocation, { latitude, longitude }) : 0;
-
-      if (busMarkers.current.has(bus._id)) {
-        const marker = busMarkers.current.get(bus._id);
+      const busId = bus._id;
+  
+      // Check if marker already exists
+      let marker = busMarkers.current.get(busId);
+      if (marker) {
         marker.setLngLat([longitude, latitude]);
-        marker.getElement().style.transform = `rotate(${bearing}deg)`;
       } else {
         const el = document.createElement("div");
         el.className = "bus-marker";
@@ -122,18 +131,17 @@ export const LiveTrackingMap = ({ zoom = 15, selectedBusStop }) => {
         el.style.width = "50px";
         el.style.height = "30px";
         el.style.backgroundSize = "cover";
-        el.style.transform = `rotate(${bearing}deg)`;
-
-        const marker = new mapboxgl.Marker({ element: el })
+  
+        marker = new mapboxgl.Marker({ element: el })
           .setLngLat([longitude, latitude])
-          .setPopup(new mapboxgl.Popup().setText(`Bus ${bus.bus.busNumber}`))
+          .setPopup(new mapboxgl.Popup().setText(`Bus ${bus.bus?.busNumber}`))
           .addTo(mapInstance.current);
-
-        busMarkers.current.set(bus._id, marker);
+  
+        busMarkers.current.set(busId, marker);
       }
     });
   };
-
+  
   // Fetch buses every 10s
   useEffect(() => {
     const fetchOnRouteBuses = async () => {
