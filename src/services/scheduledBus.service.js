@@ -2,7 +2,7 @@ import {get, post, del, put} from "../api/api";
 
 const BASE_URL = "/scheduled-buses"; // API endpoint for scheduled buses
 
-const scheduledBusService = {
+export const scheduledBusService = {
   /**
    * Fetch all scheduled buses
    * @returns {Promise}
@@ -73,5 +73,3 @@ const scheduledBusService = {
     }
   },
 };
-
-export default scheduledBusService;
