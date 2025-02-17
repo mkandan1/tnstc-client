@@ -1,6 +1,6 @@
 import { NavItem } from "./NavItem";
 
-const ManagerSidebar = () => {
+const ManagerSidebar = ({ handleLogOut }) => {
     return (
         <>
             <p className="text-gray-500 uppercase text-sm font-semibold tracking-tight">Overview</p>

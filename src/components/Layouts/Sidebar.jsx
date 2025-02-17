@@ -7,13 +7,23 @@ import toast from "react-hot-toast";
 import { delayedNavigation } from "../../util/navigate";
 import ManagerSidebar from "./ManagerSidebar";
 import AdminSidebar from "./AdminSidebar";
-import { NavItem } from "./NavItem";
+import { useState, useEffect } from "react";
 
 export const Sidebar = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const isOpen = useSelector(state => state.sidebar.isOpen);
-    const { user } = useSelector((state) => (state.user));
+    const { user } = useSelector((state) => state.user);
+    
+    // Loading state for determining user role
+    const [loading, setLoading] = useState(true);
+
+    // Handle user role determination (loading state)
+    useEffect(() => {
+        if (user?.role) {
+            setLoading(false); // Stop loading when role is available
+        }
+    }, [user]);
 
     const handleLogOut = async () => {
         try {
@@ -31,15 +41,14 @@ export const Sidebar = () => {
                 }
             );
 
-            let serverResponse = await logoutPromise
+            let serverResponse = await logoutPromise;
             if (serverResponse.success) {
-                delayedNavigation('/login', 3000)
+                delayedNavigation('/login', 3000);
             }
         } catch (error) {
             console.error('Logout failed:', error);
         }
     };
-
 
     return (
         <div className={`bg-blueGray-900 text md:w-72 md:bottom-0 md:m-0  pb-5 z-20 m-3 shadow-md rounded-md md:rounded-none ${isOpen ? 'block' : 'hidden md:block'} absolute top-0 right-0 left-0`}>
@@ -51,10 +60,21 @@ export const Sidebar = () => {
                     </button>
                 </div>
                 <div className="h-[0.10px] md:hidden w-full bg-blueGray-700"></div>
+                
+                {/* Show loading indicator while determining user role */}
                 <div className="my-5 md:my-8">
-                    {user?.role == 'admin' && <AdminSidebar />}
-                    {user?.role == 'manager' && <ManagerSidebar />}
+                    {loading ? (
+                        <div className="flex justify-center items-center">
+                            <Icon icon="eos-icons:loading" className="animate-spin text-white" width={24} height={24} />
+                        </div>
+                    ) : (
+                        <>
+                            {user?.role === 'admin' && <AdminSidebar handleLogOut={handleLogOut} />}
+                            {user?.role === 'manager' && <ManagerSidebar handleLogOut={handleLogOut} />}
+                        </>
+                    )}
                 </div>
+
                 <div className="mt-20">
                     <p className="text-[12.5px] text-blueGray-400">&copy; 2024 Bright Academy, Developed with ❤️ by Looficats.</p>
                     <Link to={'https://www.looficats.com/?ref=brightacademy'} target="_blank" className="text-[12px] text-lightBlue-950">www.looficats.com</Link>
