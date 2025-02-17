@@ -127,25 +127,74 @@ export const LiveTrackingMap = ({ zoom = 15, selectedBusStop }) => {
     });
   };
 
+  const prevLocations = useRef(new Map()); 
+
+  const calculateBearing = (prev, curr) => {
+    const { latitude: lat1, longitude: lon1 } = prev;
+    const { latitude: lat2, longitude: lon2 } = curr;
+  
+    const toRadians = (deg) => (deg * Math.PI) / 180;
+    const toDegrees = (rad) => (rad * 180) / Math.PI;
+  
+    const φ1 = toRadians(lat1);
+    const φ2 = toRadians(lat2);
+    const Δλ = toRadians(lon2 - lon1);
+  
+    const y = Math.sin(Δλ) * Math.cos(φ2);
+    const x =
+      Math.cos(φ1) * Math.sin(φ2) -
+      Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+  
+    let θ = Math.atan2(y, x);
+    θ = toDegrees(θ);
+    return (θ + 360) % 360; // Normalize to 0-360 degrees
+  };
+  
   const updateBusMarkers = (buses) => {
     if (!mapInstance || !busMarkers.current) return;
-
+  
     buses.forEach((bus) => {
       const { latitude, longitude } = bus.location;
       const busNumber = bus.bus.busNumber;
-
+  
       if (!latitude || !longitude) {
         console.warn(`Bus ${busNumber} has an invalid location:`, bus.location);
         return;
       }
-
-      // If marker exists, update its position
+  
+      const prevLocation = prevLocations.current.get(bus._id);
+      prevLocations.current.set(bus._id, { latitude, longitude });
+  
+      let bearing = 0; // Default if no previous location
+      if (prevLocation) {
+        bearing = calculateBearing(prevLocation, { latitude, longitude });
+      }
+  
       const existingMarker = busMarkers.current.get(bus._id);
       if (existingMarker) {
         existingMarker.setLngLat([longitude, latitude]);
+  
+        // Apply rotation using transform
+        existingMarker.getElement().style.transform = `rotate(${bearing}deg)`;
+      } else {
+        const el = document.createElement("div");
+        el.className = "bus-marker";
+        el.style.backgroundImage = `url(${BUS_ICON})`;
+        el.style.width = "50px";
+        el.style.height = "30px";
+        el.style.backgroundSize = "cover";
+        el.style.transform = `rotate(${bearing}deg)`;
+  
+        const marker = new mapboxgl.Marker({ element: el })
+          .setLngLat([longitude, latitude])
+          .setPopup(new mapboxgl.Popup().setText(`Bus ${busNumber}`))
+          .addTo(mapInstance);
+  
+        busMarkers.current.set(bus._id, marker);
       }
     });
   };
+  
 
   return <div ref={mapRef} className="w-full h-screen" />;
 };
