@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import scheduledBusService from "../../services/scheduledbus.service";
+import { scheduledBusService } from "../../services";
 import busService from "../../services/bus.service";
 import driverService from "../../services/driver.service";
 import routeService from "../../services/route.service";
@@ -86,8 +86,8 @@ const EditSchedule = () => {
   };
 
   const onButtonClick = async (id) => {
-    if(id == 'delete'){
-      try{
+    if (id == 'delete') {
+      try {
         await scheduledBusService.deleteScheduledBus(scheduleId);
         toast.success('Schedule has been deleted')
         navigate(-1)
@@ -104,7 +104,7 @@ const EditSchedule = () => {
       <PageHeader
         title={'Edit Schedule'}
         description={'Edit fields to update the schedule'}
-        buttons={[{id: 'delete', label: 'Delete', icon: 'material-symbols:delete-outline-rounded'}]}
+        buttons={[{ id: 'delete', label: 'Delete', icon: 'material-symbols:delete-outline-rounded' }]}
         onButtonClick={onButtonClick}
         goBack={true}
       />

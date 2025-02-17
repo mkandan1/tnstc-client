@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { PanelContainer } from "../../components/Layouts/Container";
 import PageHeader from "../../components/Layouts/PageHeader";
 import { TextInput, Select, Button, Tabs } from "flowbite-react";
-import scheduledBusService from "../../services/scheduledbus.service";
+import { scheduledBusService } from "../../services";
 import busService from "../../services/bus.service";
 import driverService from "../../services/driver.service";
 import routeService from "../../services/route.service";

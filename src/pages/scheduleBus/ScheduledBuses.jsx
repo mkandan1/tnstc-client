@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { PanelContainer } from "../../components/Layouts/Container";
 import PageHeader from "../../components/Layouts/PageHeader";
-import scheduledBusService from '../../services/scheduledbus.service';
+import { scheduledBusService } from '../../services';
 import { useNavigate } from 'react-router-dom';
 import NormalTable from '../../components/ui/table/NormalTable';
 import { convertToIST } from '../../util/convertToIST';
