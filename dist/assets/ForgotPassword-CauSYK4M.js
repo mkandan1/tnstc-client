@@ -1,0 +1,1 @@
+import{j as r}from"./index-B9wrcDWQ.js";import{C as o}from"./Container-Dk9VdPk9.js";import{H as s,F as t}from"./LoginHeader-CIE0rtI4.js";import"./ButtonList-DgGakKsg.js";const n=()=>r.jsxs(o,{children:[r.jsx(s,{title:"Forgot Password",description:"Enter your registered email address to send reset link"}),r.jsx(t,{})]});export{n as default};

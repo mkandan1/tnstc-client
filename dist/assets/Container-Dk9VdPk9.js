@@ -1,0 +1,1 @@
+import{j as s}from"./index-B9wrcDWQ.js";const r=({children:e})=>s.jsx("div",{className:"w-screen h-screen px-5 flex flex-col items-center pt-32",children:s.jsx("div",{className:" flex flex-col items-center",children:e})}),n=({children:e})=>s.jsx("div",{className:"w-screen relative lg:w-auto pt-20 px-2 md:px-10 md:pt-16 h-screen overflow-y-auto",children:e});export{r as C,n as P};

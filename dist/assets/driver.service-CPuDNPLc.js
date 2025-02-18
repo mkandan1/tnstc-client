@@ -1,0 +1,1 @@
+import{g as s}from"./index-B9wrcDWQ.js";const t="/users",a={getAllDrivers:async()=>{try{return(await s(`${t}?role=driver`)).results}catch(e){throw e.response?e.response.data:e.message}},getDriverById:async e=>{try{return(await s(`${t}/${e}`)).data}catch(r){throw r.response?r.response.data:r.message}}};export{a as d};
