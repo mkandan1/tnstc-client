@@ -128,8 +128,8 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
         const el = document.createElement("div");
         el.className = "bus-marker";
         el.style.backgroundImage = `url(${BUS_ICON})`;
-        el.style.width = "50px";
-        el.style.height = "50px";
+        el.style.width = "30px";
+        el.style.height = "30px";
         el.style.backgroundSize = "cover";
   
         marker = new mapboxgl.Marker({ element: el })
