@@ -93,7 +93,7 @@ const EditSchedule = () => {
         navigate(-1)
       }
       catch (error) {
-        console.error("Failed deleting schedule: ", error.message)
+        console.error("Failed deleting schedule: ", error)
         toast.error("Failed to delete the schedule")
       }
     }

@@ -1,4 +1,4 @@
-import { get, post, put } from "../api/api";
+import { del, get, post, put } from "../api/api";
 
 const BASE_URL = "/scheduled-buses"; // API endpoint for scheduled buses
 
