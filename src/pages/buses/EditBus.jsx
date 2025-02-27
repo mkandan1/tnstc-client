@@ -101,23 +101,14 @@ export default function EditBus() {
   };
 
   const handleSaveBus = async () => {
-    if (!busData.busNumber || !busData.passengerCapacity) {
+    if (!bus.busNumber || !bus.passengerCapacity) {
       toast.error("Please fill in all required fields.");
       return;
     }
 
-    const formData = new FormData();
-
-    Object.entries(busData).forEach(([key, value]) => {
-      if (key === "busImage" && value instanceof File) {
-        formData.append("busImage", value); // ✅ Append new image if provided
-      } else {
-        formData.append(key, value);
-      }
-    });
 
     try {
-      await busService.updateBus(busId, formData, true);
+      await busService.updateBus(busId, bus);
       toast.success("Bus details updated successfully!");
     } catch (error) {
       console.error("Error updating bus:", error);
