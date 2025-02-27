@@ -41,7 +41,7 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
 
       const map = new mapboxgl.Map({
         container: mapRef.current,
-        style: "mapbox://styles/mapbox/streets-v11",
+        style: "mapbox://styles/mapbox/satellite-streets-v11",
         center,
         zoom,
       });
