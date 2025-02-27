@@ -31,7 +31,7 @@ export const HomeHeader = ({ busStops, selectedBusStop, setSelectedBusStop }) =>
             <div className="z-40 flex justify-between items-center w-full h-full">
                 {/* Left: Logo */}
                 <div className="flex items-center gap-2 z-40">
-                    <img src="/vite.svg" alt="FlightTracker" className="h-8" />
+                    <img src="/bus.png" alt="FlightTracker" className="h-8" />
                     <span className="text-lg font-bold">BusTracker</span>
                 </div>
 

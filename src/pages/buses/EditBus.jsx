@@ -4,19 +4,20 @@ import PageHeader from "../../components/Layouts/PageHeader.jsx";
 import { PanelContainer } from "../../components/Layouts/Container.jsx";
 import { Loading } from "../../components/common/Loading.jsx";
 import { TabContainer } from "../../components/Layouts/TabContainer.jsx";
-import { Tabs, TextInput, Select, Checkbox, Button } from "flowbite-react";
+import { Tabs, TextInput, Select, Checkbox, Button, FileInput } from "flowbite-react";
 import busService from "../../services/bus.service.js";
 import urlService from "../../services/url.service.js";
 import toast from "react-hot-toast";
 import { delayedNavigation } from "../../util/navigate.js";
 import { useNavigate } from "react-router-dom";
 
-export const EditBus = () => {
+export default function EditBus() {
   const [loading, setLoading] = useState(true);
   const [originalBus, setOriginalBus] = useState(null);
   const navigate = useNavigate();
   const [bus, setBus] = useState({
     busNumber: "",
+    busName: "",
     isAc: false,
     isLowFloor: false,
     passengerType: "Regular",
@@ -27,7 +28,9 @@ export const EditBus = () => {
     fuelType: "Diesel",
     ticketingSystem: "Manual",
     liveTrackingUrl: "",
+    busImage: null, // New state for storing the selected image
   });
+
 
   const busId = urlService.getId();
   const [buttons, setButtons] = useState([
@@ -44,10 +47,24 @@ export const EditBus = () => {
     },
   ]);
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setBus((prev) => ({
+        ...prev,
+        busImage: file,
+        previewImage: imageUrl, // ✅ Store preview URL
+      }));
+    }
+  };
+
   const fetchBusData = async () => {
     try {
       const busData = await busService.getBusById(busId);
       setBus(busData.bus);
+      setBus((prev)=> ({...prev, previewImage: busData.bus.busImage}))
       setOriginalBus(busData.bus);
     } catch (error) {
       console.error("Error fetching bus data:", error);
@@ -58,8 +75,13 @@ export const EditBus = () => {
   };
 
   useEffect(() => {
+    if (!busId) {
+      console.error("No busId found, API call skipped!");
+      return;
+    }
     fetchBusData();
-  }, []);
+  }, [busId]);
+
 
   useEffect(() => {
     if (bus && originalBus) {
@@ -79,27 +101,38 @@ export const EditBus = () => {
   };
 
   const handleSaveBus = async () => {
-    if (!bus.busNumber || !bus.passengerCapacity) {
+    if (!busData.busNumber || !busData.passengerCapacity) {
       toast.error("Please fill in all required fields.");
       return;
     }
 
+    const formData = new FormData();
+
+    Object.entries(busData).forEach(([key, value]) => {
+      if (key === "busImage" && value instanceof File) {
+        formData.append("busImage", value); // ✅ Append new image if provided
+      } else {
+        formData.append(key, value);
+      }
+    });
+
     try {
-      await busService.updateBus(busId, bus);
+      await busService.updateBus(busId, formData, true);
       toast.success("Bus details updated successfully!");
     } catch (error) {
       console.error("Error updating bus:", error);
-      toast.error("Failed to update bus.");
+      toast.error("Failed to update bus. Please try again.");
     }
   };
 
-  const handleDeleteBus = async() =>{
-    try{
+
+  const handleDeleteBus = async () => {
+    try {
       await busService.deleteBus(busId);
       toast.success("Bus has been deleted!")
       navigate(-1);
     }
-    catch(error){
+    catch (error) {
       console.error("Error deleting bus:", error);
       toast.error("Failed to delete bus.");
     }
@@ -110,7 +143,7 @@ export const EditBus = () => {
       await handleSaveBus();
       return true;
     }
-    else if(id == 'delete-bus'){
+    else if (id == 'delete-bus') {
       await handleDeleteBus();
     }
     return;
@@ -133,6 +166,30 @@ export const EditBus = () => {
               <div>
                 <label>Bus Number</label>
                 <TextInput name="busNumber" value={bus.busNumber} onChange={handleChange} required />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Bus Name</label>
+                <TextInput
+                  name="busName"
+                  value={bus.busName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              {/* Bus Image Upload */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Upload Bus Image</label>
+                <FileInput accept="image/*" onChange={handleImageChange} />
+
+                {bus.previewImage && (
+                  <div className="mt-2">
+                    <img
+                      src={bus.previewImage}
+                      alt="Bus Preview"
+                      className="w-40 h-24 object-cover border rounded-lg shadow"
+                    />
+                  </div>
+                )}
               </div>
               <div>
                 <label>Passenger Type</label>

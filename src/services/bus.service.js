@@ -19,9 +19,9 @@ const busService = {
         }
     },
 
-    createBus: async (busData) => {
+    createBus: async (busData, isMultipart) => {
         try {
-            return await post('/buses', busData);
+            return await post('/buses', busData, isMultipart);
         } catch (error) {
             console.error('Error creating bus:', error.message);
             throw error;

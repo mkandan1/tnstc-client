@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { PanelContainer } from "../../components/Layouts/Container";
 import PageHeader from "../../components/Layouts/PageHeader";
-import { TextInput, Select, Checkbox, Tabs } from "flowbite-react";
+import { TextInput, Select, Checkbox, Tabs, FileInput } from "flowbite-react";
 import { Button } from "../../components/ui/button/Button";
 import busService from "../../services/bus.service";
 import toast from "react-hot-toast";
@@ -10,6 +10,7 @@ import { TabContainer } from "../../components/Layouts/TabContainer";
 export const CreateBus = () => {
   const [busData, setBusData] = useState({
     busNumber: "",
+    busName: "",
     isAc: false,
     isLowFloor: false,
     passengerType: "Regular",
@@ -20,6 +21,7 @@ export const CreateBus = () => {
     fuelType: "Diesel",
     ticketingSystem: "Manual",
     liveTrackingUrl: "",
+    busImage: null, // New state for storing the selected image
   });
 
   const handleChange = (e) => {
@@ -30,19 +32,45 @@ export const CreateBus = () => {
     }));
   };
 
+  // Handle Image Upload
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setBusData((prev) => ({
+        ...prev,
+        busImage: file,
+        previewImage: imageUrl, // ✅ Store preview URL
+      }));
+    }
+  };
+
+
   const saveBus = async () => {
     if (!busData.busNumber || !busData.passengerCapacity) {
       toast.error("Please fill in all required fields.");
       return;
     }
+
+    const formData = new FormData();
+
+    Object.entries(busData).forEach(([key, value]) => {
+      if (key === "busImage" && value instanceof File) {
+        formData.append("busImage", value); // ✅ Ensure file is appended
+      } else {
+        formData.append(key, value);
+      }
+    });
     try {
-      await busService.createBus(busData);
+      await busService.createBus(formData, true);
       toast.success("Bus created successfully!");
     } catch (error) {
       console.error("Error creating bus:", error);
       toast.error("Failed to create bus. Please try again.");
     }
   };
+
 
   return (
     <PanelContainer>
@@ -57,6 +85,7 @@ export const CreateBus = () => {
         <Tabs>
           <Tabs.Item title="Bus Information">
             <div className="space-y-4">
+              {/* Existing Input Fields */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">Bus Number</label>
                 <TextInput
@@ -66,6 +95,33 @@ export const CreateBus = () => {
                   required
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Bus Name</label>
+                <TextInput
+                  name="busName"
+                  value={busData.busName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              {/* Bus Image Upload */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Upload Bus Image</label>
+                <FileInput accept="image/*" onChange={handleImageChange} />
+
+                {busData.previewImage && (
+                  <div className="mt-2">
+                    <img
+                      src={busData.previewImage}
+                      alt="Bus Preview"
+                      className="w-40 h-24 object-cover border rounded-lg shadow"
+                    />
+                  </div>
+                )}
+              </div>
+
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Passenger Type</label>
@@ -136,7 +192,6 @@ export const CreateBus = () => {
                 <Checkbox name="isNightService" checked={busData.isNightService} onChange={handleChange} />
                 <label className="text-sm font-medium text-gray-700">Night Service</label>
               </div>
-
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Live Tracking URL (Optional)</label>

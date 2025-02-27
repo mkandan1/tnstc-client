@@ -7,7 +7,7 @@ const BUS_STOP_ICON = "/bus-stop.png";
 const BUS_ICON = "/bus.png";
 const DEFAULT_CENTER = [78.4445, 10.9536];
 
-export const LiveTrackingMap = ({ zoom = 15, selectedBusStop }) => {
+export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const busMarkers = useRef(new Map());
@@ -53,8 +53,8 @@ export const LiveTrackingMap = ({ zoom = 15, selectedBusStop }) => {
           const el = document.createElement("div");
           el.className = "bus-stop-marker";
           el.style.backgroundImage = `url(${BUS_STOP_ICON})`;
-          el.style.width = "30px";
-          el.style.height = "30px";
+          el.style.width = "10px";
+          el.style.height = "10px";
           el.style.backgroundSize = "cover";
 
           new mapboxgl.Marker({ element: el })

@@ -14,23 +14,23 @@ const apiRequest = async (method, url, data, isMultipart = false) => {
   const location = window.location.pathname;
   let token = getAccessToken();
 
-  if (!token && location != "/") {
+  if (!token && location !== "/") {
     await getNewAccessToken();
     token = getAccessToken();
   }
 
   const headers = {
     'Authorization': `Bearer ${token}`,
-    'Content-Type': isMultipart ? 'multipart/form-data' : 'application/json',
   };
-
-  // 🔹 Ensure `data` is never null, default to empty object `{}`.
-  const processedData = data ? preprocessData(data) : {};
+  
+  if (isMultipart) {
+    headers["Content-Type"] = "multipart/form-data";
+  }
 
   const response = await apiClient.request({
     method,
     url,
-    data: processedData, // ✅ Fixed: `null` replaced with `{}`.
+    data,
     headers,
   });
 
@@ -39,6 +39,6 @@ const apiRequest = async (method, url, data, isMultipart = false) => {
 
 
 export const get = (url) => apiRequest('GET', url);
-export const post = (url, data, isMultipart = false) => apiRequest('POST', url, preprocessData(data), isMultipart);
+export const post = (url, data, isMultipart = false) => apiRequest('POST', url, data, isMultipart);
 export const put = (url, data) => apiRequest('PUT', url, preprocessData(data));
 export const del = (url) => apiRequest('DELETE', url, {});
