@@ -44,6 +44,8 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
     fetchBusStops();
   }, []);
 
+
+
   // Initialize Map
   useEffect(() => {
     mapboxgl.accessToken = API_KEY;
@@ -97,7 +99,6 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
     };
   }, [selectedBusStop, busStops]);
 
-  // Find nearest bus stop
   const findNearestBusStop = (stops, busLocation) => {
     let nearest = null;
     let minDistance = Infinity;
@@ -116,7 +117,6 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
     return nearest;
   };
 
-  // Update bus markers on map
   const updateBusMarkers = (buses) => {
     if (!mapInstance.current || !mapRef.current) return;
 
@@ -149,15 +149,12 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
 
   // Play "ding-ding" sound
   const playDingSound = () => {
-    if (!isUserInteracted) {
-      console.warn("User has not interacted with the document yet.");
-      return;
-    }
-    
+
+
     const dingAudio = new Audio(DING_SOUND);
     dingAudio.play().catch((err) => console.error("Audio play error:", err));
   };
-  
+
 
   // Speak the announcement
   const speakAnnouncement = (message) => {
@@ -167,6 +164,7 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
       console.warn("ResponsiveVoice is not loaded");
     }
   };
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "காலை வணக்கம்!";
@@ -174,10 +172,12 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
     return "மாலை வணக்கம்!";
   };
 
+
+
   const makePeriodicAnnouncements = (buses) => {
     if (!buses.length) return;
 
-    let announcementMessage = `${getGreeting()} பயணிகளின் கனிவான கவனத்திற்கு! பின்வரும் பஸ்கள் பயணத்தில் உள்ளன: `;
+    let announcementMessage = `${getGreeting()} பயணிகளின் கனிவான கவனத்திற்கு! `;
 
     buses.forEach((bus) => {
       const nearestStop = findNearestBusStop(busStops, {
@@ -185,9 +185,10 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
         lng: bus.location.longitude,
       });
 
-      if (nearestStop) {
-        announcementMessage += `பஸ் ${bus.bus?.busNumber}, ${bus.route.routeName.split(" to ")[0]} இலிருந்து ${bus.route.routeName.split(" to ")[1]} நோக்கி பயணித்து வருகிறது. தற்போது, இது ${nearestStop.name} அருகில் உள்ளது. `;
-      }
+      console.log(nearestStop)
+
+      announcementMessage += `பஸ் ${bus.bus?.busNumber}, ${bus.route.routeName.split(" to ")[0]} இலிருந்து ${bus.route.routeName.split(" to ")[1]} நோக்கி பயணித்து வருகிறது. தற்போது, இது ${nearestStop?.name} அருகில் உள்ளது. `;
+
     });
 
     setAnnouncement(announcementMessage);
@@ -219,6 +220,8 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
     return () => clearInterval(interval);
   }, []);
 
+
+
   // Make announcement every 5 mins
   useEffect(() => {
     const fetchAndAnnounce = async () => {
@@ -242,6 +245,7 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
   return (
     <div className="w-full h-screen relative">
       <div ref={mapRef} className="w-full h-full" />
+
     </div>
   );
 };
