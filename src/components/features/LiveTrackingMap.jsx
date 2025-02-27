@@ -5,15 +5,31 @@ import { busStopService, scheduledBusService } from "../../services";
 const API_KEY = import.meta.env.VITE_MAP_API_KEY;
 const BUS_STOP_ICON = "/bus-stop.png";
 const BUS_ICON = "/bus.png";
+const DING_SOUND = "/ding.mpeg"; // Add this sound file in your public folder
 const DEFAULT_CENTER = [78.4445, 10.9536];
 
 export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const busMarkers = useRef(new Map());
-  const prevLocations = useRef(new Map());
+
 
   const [busStops, setBusStops] = useState([]);
+  const [announcement, setAnnouncement] = useState("");
+  const [isUserInteracted, setIsUserInteracted] = useState(false);
+
+  useEffect(() => {
+    const enableAudio = () => setIsUserInteracted(true);
+
+    window.addEventListener("click", enableAudio);
+    window.addEventListener("keydown", enableAudio);
+
+    return () => {
+      window.removeEventListener("click", enableAudio);
+      window.removeEventListener("keydown", enableAudio);
+    };
+  }, []);
+
 
   // Fetch bus stops
   useEffect(() => {
@@ -31,13 +47,10 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
   // Initialize Map
   useEffect(() => {
     mapboxgl.accessToken = API_KEY;
-
-    // Determine initial center
     const initialCenter = selectedBusStop?.coordinates || DEFAULT_CENTER;
 
-    // Initialize map
     const initializeMap = (center) => {
-      if (mapInstance.current) return; // Prevent multiple instances
+      if (mapInstance.current) return;
 
       const map = new mapboxgl.Map({
         container: mapRef.current,
@@ -82,45 +95,37 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
         mapInstance.current = null;
       }
     };
-    
   }, [selectedBusStop, busStops]);
 
-  // Calculate direction bearing
-  const calculateBearing = (prev, curr) => {
-    if (!prev) return 0;
+  // Find nearest bus stop
+  const findNearestBusStop = (stops, busLocation) => {
+    let nearest = null;
+    let minDistance = Infinity;
 
-    const toRadians = (deg) => (deg * Math.PI) / 180;
-    const toDegrees = (rad) => (rad * 180) / Math.PI;
+    stops.forEach((stop) => {
+      const distance = Math.sqrt(
+        Math.pow(stop.coordinates.lat - busLocation.lat, 2) +
+        Math.pow(stop.coordinates.lng - busLocation.lng, 2)
+      );
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearest = stop;
+      }
+    });
 
-    const φ1 = toRadians(prev.latitude);
-    const φ2 = toRadians(curr.latitude);
-    const Δλ = toRadians(curr.longitude - prev.longitude);
-
-    const y = Math.sin(Δλ) * Math.cos(φ2);
-    const x =
-      Math.cos(φ1) * Math.sin(φ2) -
-      Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
-
-    return (toDegrees(Math.atan2(y, x)) + 360) % 360;
+    return nearest;
   };
 
-  // Update bus markers
+  // Update bus markers on map
   const updateBusMarkers = (buses) => {
-    if (!mapInstance.current || !mapRef.current) {
-      console.warn("Map instance is not available. Skipping marker updates.");
-      return;
-    }
-  
+    if (!mapInstance.current || !mapRef.current) return;
+
     buses.forEach((bus) => {
-      if (!bus.location?.latitude || !bus.location?.longitude) {
-        console.warn(`Invalid bus location: ${bus.bus?.busNumber}`);
-        return;
-      }
-  
+      if (!bus.location?.latitude || !bus.location?.longitude) return;
+
       const { latitude, longitude } = bus.location;
       const busId = bus._id;
-  
-      // Check if marker already exists
+
       let marker = busMarkers.current.get(busId);
       if (marker) {
         marker.setLngLat([longitude, latitude]);
@@ -131,24 +136,77 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
         el.style.width = "30px";
         el.style.height = "30px";
         el.style.backgroundSize = "cover";
-  
+
         marker = new mapboxgl.Marker({ element: el })
           .setLngLat([longitude, latitude])
           .setPopup(new mapboxgl.Popup().setText(`Bus ${bus.bus?.busNumber}`))
           .addTo(mapInstance.current);
-  
+
         busMarkers.current.set(busId, marker);
       }
     });
   };
+
+  // Play "ding-ding" sound
+  const playDingSound = () => {
+    if (!isUserInteracted) {
+      console.warn("User has not interacted with the document yet.");
+      return;
+    }
+    
+    const dingAudio = new Audio(DING_SOUND);
+    dingAudio.play().catch((err) => console.error("Audio play error:", err));
+  };
   
-  // Fetch buses every 10s
+
+  // Speak the announcement
+  const speakAnnouncement = (message) => {
+    if (responsiveVoice.voiceSupport()) {
+      responsiveVoice.speak(message, "Tamil Female");
+    } else {
+      console.warn("ResponsiveVoice is not loaded");
+    }
+  };
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "காலை வணக்கம்!";
+    if (hour < 18) return "மதிய வணக்கம்!";
+    return "மாலை வணக்கம்!";
+  };
+
+  const makePeriodicAnnouncements = (buses) => {
+    if (!buses.length) return;
+
+    let announcementMessage = `${getGreeting()} பயணிகளின் கனிவான கவனத்திற்கு! பின்வரும் பஸ்கள் பயணத்தில் உள்ளன: `;
+
+    buses.forEach((bus) => {
+      const nearestStop = findNearestBusStop(busStops, {
+        lat: bus.location.latitude,
+        lng: bus.location.longitude,
+      });
+
+      if (nearestStop) {
+        announcementMessage += `பஸ் ${bus.bus?.busNumber}, ${bus.route.routeName.split(" to ")[0]} இலிருந்து ${bus.route.routeName.split(" to ")[1]} நோக்கி பயணித்து வருகிறது. தற்போது, இது ${nearestStop.name} அருகில் உள்ளது. `;
+      }
+    });
+
+    setAnnouncement(announcementMessage);
+    console.log("Announcing: ", announcementMessage);
+
+    playDingSound();
+    setTimeout(() => {
+      speakAnnouncement(announcementMessage);
+    }, 2000); // 2s delay after ding sound
+  };
+
+  // Fetch buses and update markers every 10s, announce every 5 mins
   useEffect(() => {
     const fetchOnRouteBuses = async () => {
       try {
         const response = await scheduledBusService.getAllScheduledBuses({
           status: ["On Route"],
         });
+
         updateBusMarkers(response);
       } catch (error) {
         console.error("Error fetching buses:", error);
@@ -161,5 +219,29 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
     return () => clearInterval(interval);
   }, []);
 
-  return <div ref={mapRef} className="w-full h-screen" />;
+  // Make announcement every 5 mins
+  useEffect(() => {
+    const fetchAndAnnounce = async () => {
+      try {
+        const response = await scheduledBusService.getAllScheduledBuses({
+          status: ["On Route"],
+        });
+
+        makePeriodicAnnouncements(response);
+      } catch (error) {
+        console.error("Error fetching buses:", error);
+      }
+    };
+
+    fetchAndAnnounce();
+    const interval = setInterval(fetchAndAnnounce, 300000); // 5 minutes
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="w-full h-screen relative">
+      <div ref={mapRef} className="w-full h-full" />
+    </div>
+  );
 };
