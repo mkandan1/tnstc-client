@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { scheduledBusService } from '../../services';
 import { Icon } from '@iconify/react/dist/iconify.js';
+import { convertToIST, getISTTime } from '../../util/convertToIST';
+import { calculateETA, calculateJourneyProgress, calculateStartTime, getRemainingTime, getTimeAgo } from '../../util/time';
 
 const LeftSidePanel = ({ selectedBusStop }) => {
     const [scheduledBuses, setScheduledBuses] = useState([]);
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(true);
     const [selectedBus, setSelectedBus] = useState(null);
 
     useEffect(() => {
@@ -85,13 +87,29 @@ const LeftSidePanel = ({ selectedBusStop }) => {
                                         </div>
                                         {bus.route.routeName.includes(" to ") ? (
                                             <p className="text-gray-400 text-sm flex space-x-2 items-center">
-                                                <span className="font-semibold">{bus.route.routeName.split(" to ")[0]}</span>
+                                                <span className="font-semibold">{bus.route?.origin?.name}</span>
                                                 <span className="text-gray-50"> <Icon icon='uil:exchange' /> </span>
-                                                <span className="font-semibold">{bus.route.routeName.split(" to ")[1]}</span>
+                                                <span className="font-semibold">{bus.route?.destination?.name}</span>
                                             </p>
                                         ) : (
                                             <p className="text-gray-400">{bus.route.routeName}</p>
                                         )}
+
+                                        <div className="mt-2 flex items-center space-x-2 bg-[#4f4f4f] text-white p-2 rounded-lg shadow-md">
+                                            <Icon icon="mdi:clock-outline" className="text-yellow-400 text-lg" />
+                                            {
+                                                bus.status == "Scheduled" ? (
+                                                    <p className="text-sm font-medium">
+                                                        Starting in: <span className="text-yellow-300 font-semibold">{calculateStartTime(bus.scheduleTime)}</span>
+                                                    </p>
+                                                ) : (
+                                                    <p className="text-sm font-medium">
+                                                        Reach in: <span className="text-yellow-300 font-semibold">{calculateETA(bus, selectedBusStop)}</span>
+                                                    </p>
+                                                )
+                                            }
+                                        </div>
+
                                     </div>
                                 ))
                             ) : (
@@ -136,35 +154,81 @@ const LeftSidePanel = ({ selectedBusStop }) => {
                         />
                     </div>
                     {selectedBus.route.routeName.includes(" to ") ? (
-                        <div className="text-gray-400 text-sm flex items-center justify-between bg-[#EDEDED] p-1 py-3">
-                            <div className='w-2/5 text-center'>
-                                <span className="font-semibold text-lg uppercase text-gray-600">{selectedBus.route.routeName.split(" to ")[0]}</span>
+                        <div className="bg-gray-100 p-4 shadow-md w-full max-w-md">
+                            {/* Top Section */}
+                            <div className="flex items-center justify-between border-b pb-2">
+                                <div className="text-center">
+                                    <div className="text-2xl font-bold text-gray-600">{selectedBus.route.origin.code}</div>
+                                    <div className="text-sm text-gray-500">{selectedBus.route.routeName.split(" to ")[0]}</div>
+                                    <div className="text-xs text-gray-400">IST (UTC +5:30)</div>
+                                </div>
+
+                                {/* Divider with Icon */}
+                                <div className="relative flex flex-col items-center">
+                                    <div className="absolute h-full w-1 bg-white"></div>
+                                    <div className="bg-white p-3 rounded-full shadow-lg relative z-10">
+                                        <Icon icon="solar:bus-bold" className="text-yellow-500 text-2xl" />
+                                    </div>
+                                </div>
+
+                                <div className="text-center">
+                                    <div className="text-2xl font-bold text-gray-600">{selectedBus.route.destination.code}</div>
+                                    <div className="text-sm text-gray-500">{selectedBus.route.routeName.split(" to ")[1]}</div>
+                                    <div className="text-xs text-gray-400">IST (UTC +5:30)</div>
+                                </div>
                             </div>
-                            <div className='w-1/5 flex justify-center'>
-                                <span className="text-gray-500 text-xl bg-white p-4 rounded-full"> <Icon icon='uil:exchange' className='text-yellow-300' /> </span>
+
+                            {/* Schedule & Actual Timing */}
+                            <div className="mt-2 text-sm grid gap-y-1">
+                                {/* First row: Scheduled times */}
+                                <div className="grid grid-cols-2 gap-x-4">
+                                    <div className="flex items-center space-x-1">
+                                        <span className="text-gray-400 whitespace-nowrap">Scheduled:</span>
+                                        <span className="font-semibold text-gray-400 whitespace-nowrap uppercase">{getISTTime(selectedBus.scheduleTime)}</span>
+                                    </div>
+                                    <div className="flex items-center space-x-1">
+                                        <span className="text-gray-400 whitespace-nowrap">Scheduled:</span>
+                                        <span className="font-semibold text-gray-400 whitespace-nowrap uppercase">{getISTTime(selectedBus.scheduledArrivalTime)}</span>
+                                    </div>
+                                </div>
+
+                                {/* Second row: Actual & Estimated times */}
+                                <div className="grid grid-cols-2 gap-x-4">
+                                    <div className="flex items-center space-x-1">
+                                        <span className="text-gray-400 whitespace-nowrap">Actual:</span>
+                                        <span className="font-semibold text-gray-400 whitespace-nowrap uppercase">{getISTTime(selectedBus.actualTime)}</span>
+                                    </div>
+                                    <div className="flex items-center space-x-1">
+                                        <span className="text-gray-400 whitespace-nowrap">Estimated:</span>
+                                        <span className="font-semibold text-red-500 whitespace-nowrap uppercase">{getISTTime(selectedBus.estimatedArrivalTime)}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div className='w-2/5 text-center'>
-                                <span className="font-semibold text-lg uppercase text-gray-600">{selectedBus.route.routeName.split(" to ")[1]}</span>
+
+
+                            {/* Progress Bar */}
+                            <div className="mt-5 relative">
+                                <div className="w-full h-1 bg-gray-300 rounded-full">
+                                    <div className="h-1 bg-yellow-500 rounded-full" style={{ width: calculateJourneyProgress(selectedBus) }}></div>
+                                </div>
+                                <div className={`absolute top-[-10px] left-[${calculateJourneyProgress(selectedBus)}] transform -translate-x-1/2 border border-yellow-300 bg-white p-1 rounded-full`}>
+                                    <Icon icon="mingcute:bus-2-fill" className="text-gray-700 text-lg" />
+                                </div>
+                            </div>
+
+                            {/* Distance & Time Remaining */}
+                            <div className="flex justify-between text-xs text-gray-500 mt-5">
+                                <span>{selectedBus.distanceTraveled | 0} km, {getTimeAgo(selectedBus.actualTime)}</span>
+                                <span>{selectedBus.distanceRemaining | 0} km, in {calculateETA(selectedBus, selectedBusStop)}</span>
                             </div>
                         </div>
                     ) : (
                         <p className="text-gray-400">{selectedBus.route.routeName}</p>
                     )}
 
-                    <div className="mt-5 bg-[#2D2D2D] p-3 rounded-lg shadow-lg text-white">
-                        <div className="flex items-center space-x-2">
-                            <Icon icon="subway:time-2" className="size-5 text-yellow-300" />
-                            <h4 className="text-md font-semibold">Scheduled Time</h4>
-                        </div>
-
-                        <div className="mt-2 bg-[#1E1E1E] text-center p-2 rounded-md">
-                            <p className="text-lg font-bold text-yellow-400">
-                                {new Date(selectedBus.scheduleTime).toLocaleDateString('en-GB').replace(/\//g, '-')}
-                            </p>
-                            <p className="text-xl font-extrabold text-gray-100">
-                                {new Date(selectedBus.scheduleTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </p>
-                        </div>
+                    <div className='p-1 py-5 relative'>
+                        <p className='text-xs text-gray-500'>Real time tracking provided by HypeSquad - M.A.M College of Engineering and Technology, Siruganur, Trichy</p>
+                        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-10 h-1 bg-gray-600 rounded-lg"></div>
                     </div>
 
                 </div>

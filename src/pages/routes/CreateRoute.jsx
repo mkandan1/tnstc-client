@@ -87,8 +87,9 @@ const CreateRoute = () => {
       totalDistance: createdRoute.distance,
       totalDuration: createdRoute.duration,
       stops: createdRoute.waypoints.map((stop, index) => ({
-        stopId: stop,
-        stopOrder: index + 1,
+        stopId: stop.id,
+        stopOrder: stop.stopOrder,
+        distanceFromOrigin: stop.distanceFromOrigin
       })),
       routeType: "Urban", // Change based on user selection if needed
       isActive: true,
@@ -107,6 +108,7 @@ const CreateRoute = () => {
   const handleWaypointsUpdated = (data) => {
     console.log("Updated waypoints: ", data);
     setCreatedRoute(data)
+
   };
 
   return (

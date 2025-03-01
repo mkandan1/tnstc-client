@@ -17,6 +17,7 @@ const CreateBusStop = () => {
       lat: null,
       lng: null
     },
+    code: null,
     active: true
   })
   const navigate = useNavigate()
@@ -48,6 +49,7 @@ const CreateBusStop = () => {
           lat: null,
           lng: null
         },
+        code: "",
         active: true
       })
     }
@@ -75,7 +77,7 @@ const CreateBusStop = () => {
       <TabContainer>
         <Tabs>
           <Tabs.Item title="Bus Stop">
-            <div className="space-y-20 relative">
+            <div className="relative">
               <div className='w-full h-[50vh]'>
                 <MapContainer>
                   {(mapInstance) => <BusStopManager mapInstance={mapInstance} onBusStopAdded={handleBusStopAdded} busStop={busStop} />}
@@ -92,6 +94,19 @@ const CreateBusStop = () => {
                   value={busStop.name}
                   onChange={(e) => {
                     setBusStop((prev) => ({ ...prev, name: e.target.value }))
+                  }}
+                />
+              </div>
+              <div className='w-96 mt-2'>
+                <label className="block text-sm font-medium text-gray-700">
+                  Bus Stop Code
+                </label>
+                <TextInput
+                  type="text"
+                  placeholder="Stop Code"
+                  value={busStop.code}
+                  onChange={(e) => {
+                    setBusStop((prev) => ({ ...prev, code: e.target.value }))
                   }}
                 />
               </div>

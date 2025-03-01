@@ -77,6 +77,25 @@ const EditRoute = () => {
         console.log(userQuery)
     };
 
+
+    const handleOnButtonClick = (id) => {
+        if(id == 'save'){
+            return saveRoute();
+        }
+        else if (id == 'delete') {
+            return deleteRoute();
+        }
+    }
+
+    const deleteRoute = async () => {
+        await routeService.deleteRoute(routeId)
+        .then((res) => {
+            toast.success('Route has been deleted from record')
+            navigate('/manager/routes')
+          })
+          .catch((err) => toast.error('An error occured'))
+    }
+    
     const saveRoute = async () => {
         if (!userQuery.origin || !userQuery.destination || !routeData) {
             toast.error("Please enter origin, destination, and generate a route.");
@@ -113,9 +132,9 @@ const EditRoute = () => {
             <PageHeader
                 title="Edit Route"
                 description="Modify the route details and waypoints"
-                buttons={[{ id: "edit-route", label: "Save Changes" }]}
+                buttons={[{ id: "edit-route", label: "Save Changes" }, { id: 'delete', label: 'Delete', icon: 'material-symbols:delete-rounded', disabled: false }]}
                 goBack={true}
-                onButtonClick={saveRoute}  // Fixed missing parentheses
+                onButtonClick={handleOnButtonClick}  // Fixed missing parentheses
             />
             <TabContainer>
                 <Tabs>

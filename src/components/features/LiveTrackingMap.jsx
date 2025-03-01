@@ -119,16 +119,38 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
 
   const updateBusMarkers = (buses) => {
     if (!mapInstance.current || !mapRef.current) return;
-
+  
     buses.forEach((bus) => {
       if (!bus.location?.latitude || !bus.location?.longitude) return;
-
+  
       const { latitude, longitude } = bus.location;
       const busId = bus._id;
-
+  
       let marker = busMarkers.current.get(busId);
+  
       if (marker) {
-        marker.setLngLat([longitude, latitude]);
+        // Get current marker position
+        const currentLngLat = marker.getLngLat();
+        const start = { lng: currentLngLat.lng, lat: currentLngLat.lat };
+        const end = { lng: longitude, lat: latitude };
+        const duration = 2000; // 2 seconds animation
+        let startTime;
+  
+        const animate = (timestamp) => {
+          if (!startTime) startTime = timestamp;
+          const progress = Math.min((timestamp - startTime) / duration, 1); // Normalize progress
+  
+          const interpolatedLng = start.lng + (end.lng - start.lng) * progress;
+          const interpolatedLat = start.lat + (end.lat - start.lat) * progress;
+  
+          marker.setLngLat([interpolatedLng, interpolatedLat]);
+  
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          }
+        };
+  
+        requestAnimationFrame(animate);
       } else {
         const el = document.createElement("div");
         el.className = "bus-marker";
@@ -136,17 +158,17 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
         el.style.width = "30px";
         el.style.height = "30px";
         el.style.backgroundSize = "cover";
-
+  
         marker = new mapboxgl.Marker({ element: el })
           .setLngLat([longitude, latitude])
           .setPopup(new mapboxgl.Popup().setText(`Bus ${bus.bus?.busNumber}`))
           .addTo(mapInstance.current);
-
+  
         busMarkers.current.set(busId, marker);
       }
     });
   };
-
+  
   // Play "ding-ding" sound
   const playDingSound = () => {
 
@@ -205,9 +227,9 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
     const fetchOnRouteBuses = async () => {
       try {
         const response = await scheduledBusService.getAllScheduledBuses({
+          busStop: selectedBusStop?._id,
           status: ["On Route"],
         });
-
         updateBusMarkers(response);
       } catch (error) {
         console.error("Error fetching buses:", error);
@@ -227,9 +249,9 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
     const fetchAndAnnounce = async () => {
       try {
         const response = await scheduledBusService.getAllScheduledBuses({
+          busStop: selectedBusStop._id, 
           status: ["On Route"],
         });
-
         makePeriodicAnnouncements(response);
       } catch (error) {
         console.error("Error fetching buses:", error);

@@ -54,11 +54,12 @@ const TaskDetails = () => {
           await scheduledBusService.startRide(taskId, {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
+            routeId: taskDetails.route._id,
           });
 
 
           // ✅ Make sure status remains 'On Route'
-          setTaskDetails((prev) => ({ ...prev, status: "On Route" }));
+          setTaskDetails((prev) => ({ ...prev, status: "On Route"}));
 
           startLocationTracking();
           toast.success("Ride has been started")

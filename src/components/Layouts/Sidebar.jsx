@@ -78,8 +78,8 @@ export const Sidebar = () => {
                 </div>
 
                 <div className="mt-20">
-                    <p className="text-[12.5px] text-blueGray-400">&copy; 2024 Bright Academy, Developed with ❤️ by Looficats.</p>
-                    <Link to={'https://www.looficats.com/?ref=brightacademy'} target="_blank" className="text-[12px] text-lightBlue-950">www.looficats.com</Link>
+                    <p className="text-[12.5px] text-blueGray-400">&copy; 2025 MAM College of Engineering & Technology, Developed with ❤️ by HypeSquad.</p>
+                    <Link to={'https://www.mamcet.com?ref=bus_tracking_web'} target="_blank" className="text-[12px] text-lightBlue-950">www.mamcet.com</Link>
                 </div>
             </div>
         </div>

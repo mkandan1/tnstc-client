@@ -20,6 +20,7 @@ const ViewBusStop = () => {
       lng: null,
       lat: null,
     },
+    code: null,
     active: true,
   });
   const [dbData, setDbData] = useState();
@@ -76,13 +77,13 @@ const ViewBusStop = () => {
         toast.error('Failed to update bus stop');
       }
     }
-    else if(btnId == 'delete'){
+    else if (btnId == 'delete') {
       await busStopService.deleteBusStop(id)
-      .then((res)=> {
-        toast.success('Stop has been deleted from record')
-        navigate('/manager/stops')
-      })
-      .catch((err)=> toast.error('An error occured'))
+        .then((res) => {
+          toast.success('Stop has been deleted from record')
+          navigate('/manager/stops')
+        })
+        .catch((err) => toast.error('An error occured'))
     }
   };
 
@@ -93,7 +94,7 @@ const ViewBusStop = () => {
       <TabContainer>
         <Tabs>
           <Tabs.Item title="Bus Stop">
-            <div className="space-y-20 relative">
+            <div className="relative">
               <div className='w-full h-[50vh]'>
                 <MapContainer>
                   {(mapInstance) => <BusStopManager mapInstance={mapInstance} onBusStopAdded={handleBusStopAdded} busStop={busStop} />}
@@ -109,6 +110,19 @@ const ViewBusStop = () => {
                   value={busStop.name || ''}
                   onChange={(e) => {
                     setBusStop((prev) => ({ ...prev, name: e.target.value }));
+                  }}
+                />
+              </div>
+              <div className='w-96 mt-2'>
+                <label className="block text-sm font-medium text-gray-700">
+                  Bus Stop Code
+                </label>
+                <TextInput
+                  type="text"
+                  placeholder="Stop Code"
+                  value={busStop.code}
+                  onChange={(e) => {
+                    setBusStop((prev) => ({ ...prev, code: e.target.value }))
                   }}
                 />
               </div>

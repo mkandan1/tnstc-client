@@ -5,6 +5,10 @@ body {
     overflow-x: hidden !important;
 }
 
+.header {
+  box-shadow: 0 41px 86px rgba(0, 0, 0, 0.9); /* Adds a soft shadow at the bottom */
+}
+
 /* .app {
     display: flex;
   } */
