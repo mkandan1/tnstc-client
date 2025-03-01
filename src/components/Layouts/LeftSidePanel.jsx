@@ -209,9 +209,9 @@ const LeftSidePanel = ({ selectedBusStop }) => {
                             {/* Progress Bar */}
                             <div className="mt-5 relative">
                                 <div className="w-full h-1 bg-gray-300 rounded-full">
-                                    <div className="h-1 bg-yellow-500 rounded-full" style={{ width: calculateJourneyProgress(selectedBus) }}></div>
+                                    <div className="h-1 bg-yellow-500 rounded-full" style={{ width: `${selectedBus?.journeyCompletion}%`}}></div>
                                 </div>
-                                <div className={`absolute top-[-10px] left-[${calculateJourneyProgress(selectedBus)}] transform -translate-x-1/2 border border-yellow-300 bg-white p-1 rounded-full`}>
+                                <div className={`absolute top-[-10px] left-[${selectedBus?.journeyCompletion}%] transform -translate-x-1/2 border border-yellow-300 bg-white p-1 rounded-full`}>
                                     <Icon icon="mingcute:bus-2-fill" className="text-gray-700 text-lg" />
                                 </div>
                             </div>

@@ -118,7 +118,10 @@ export const getRemainingTime = (estimatedArrivalTime) => {
 };
 
 export const calculateJourneyProgress = (busData) => {
-  if (!busData?.distanceTraveled || !busData?.route?.totalDistance) return "0%";
+
+  if (!busData?.distanceTraveled || !busData?.route?.totalDistance) {
+    console.log("0%", busData.distanceTraveled, busData.route.totalDistance)
+    return "0%"};
 
   const { distanceTraveled, route } = busData;
   const totalDistance = route.totalDistance;
