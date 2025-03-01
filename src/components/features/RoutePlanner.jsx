@@ -180,7 +180,7 @@ export const RoutePlanner = ({
       <div className="mt-4 w-full flex-1 overflow-y-auto border rounded p-2 font-mono">
         {[origin, ...waypoints, destination].map((stop, index) => (
           <div
-            key={stop._id}
+            key={stop?._id}
             draggable={index !== 0 && index !== waypoints.length + 1} // Prevent dragging origin & destination
             onDragStart={() => handleDragStart(index - 1)}
             onDragOver={() => handleDragOver(index - 1)}

@@ -61,7 +61,7 @@ const EditRoute = () => {
     
 
     const handleSelectChange = (e, isOrigin = true) => {
-        const selectedStop = busStops.find((stop) => stop?._id === e.target.value);
+        const selectedStop = busStops.find((stop) => stop._id === e.target.value);
         const key = isOrigin ? "origin" : "destination";
 
         if (selectedStop) {
@@ -69,7 +69,7 @@ const EditRoute = () => {
                 ...prev,
                 [key]: {
                     name: selectedStop.name,
-                    _id: selectedStop?._id,
+                    _id: selectedStop._id,
                 },
             }));
         }
@@ -104,12 +104,12 @@ const EditRoute = () => {
 
         const updatedRouteData = {
             routeName: `${userQuery.origin.name} to ${userQuery.destination.name}`,
-            origin: userQuery.origin?._id,
-            destination: userQuery.destination?._id,
+            origin: userQuery.origin._id,
+            destination: userQuery.destination._id,
             totalDistance: routeData.distance,
             totalDuration: routeData.duration,
             stops: waypoints.map((stop, index) => ({
-                stopId: stop?._id,
+                stopId: stop._id,
                 stopOrder: index + 1,
             })),
         };
@@ -149,7 +149,7 @@ const EditRoute = () => {
                                 <Select onChange={(e) => handleSelectChange(e, true)} value={userQuery.origin?._id || ""}>
                                     <option value="" disabled>Select an origin</option>
                                     {busStops.map((stop) => (
-                                        <option key={stop?._id} value={stop?._id}>
+                                        <option key={stop._id} value={stop._id}>
                                             {stop.name}
                                         </option>
                                     ))}
@@ -164,7 +164,7 @@ const EditRoute = () => {
                                 <Select onChange={(e) => handleSelectChange(e, false)} value={userQuery.destination?._id || ""}>
                                     <option value="" disabled>Select a destination</option>
                                     {busStops.map((stop) => (
-                                        <option key={stop?._id} value={stop?._id}>
+                                        <option key={stop._id} value={stop._id}>
                                             {stop.name}
                                         </option>
                                     ))}
