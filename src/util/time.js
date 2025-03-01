@@ -16,7 +16,7 @@ export const calculateArrivalTimes = (busLocation, traveledDistance, busStops, a
     });
 };
 export const calculateETA = (busData, selectedBusStop) => {
-  if (!busData?.location || !selectedBusStop?.coordinates) return "Invalid data";
+  if (!busData?.location || !selectedBusStop?.coordinates) return "0 min";
 
   const { latitude, longitude } = busData.location;
   const busSpeed = busData.speed || 30; // Default to 30 km/h if speed is 0
@@ -83,7 +83,7 @@ export const haversineDistance = (lat1, lon1, lat2, lon2) => {
 
 
 export const getTimeAgo = (actualTime) => {
-  if (!actualTime) return "Unknown";
+  if (!actualTime) return "0 min ago";
 
   const actualDate = new Date(actualTime);
   const now = new Date();
