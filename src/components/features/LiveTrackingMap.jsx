@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import { busStopService, scheduledBusService } from "../../services";
+import wsService from "../../services/webSocketService";
 
 const API_KEY = import.meta.env.VITE_MAP_API_KEY;
 const BUS_STOP_ICON = "/bus-stop.png";
@@ -222,25 +223,25 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
     }, 2000); // 2s delay after ding sound
   };
 
-  // Fetch buses and update markers every 10s, announce every 5 mins
   useEffect(() => {
-    const fetchOnRouteBuses = async () => {
-      try {
-        const response = await scheduledBusService.getAllScheduledBuses({
-          busStop: selectedBusStop?._id,
-          status: ["On Route"],
-        });
-        updateBusMarkers(response);
-      } catch (error) {
-        console.error("Error fetching buses:", error);
-      }
+    if (!selectedBusStop?._id) return;
+
+    // Function to handle WebSocket messages
+    const handleWebSocketMessage = (data) => {
+        if (data.type === "busStopResponse") {
+            updateBusMarkers(data.buses);
+        }
     };
 
-    fetchOnRouteBuses();
-    const interval = setInterval(fetchOnRouteBuses, 10000);
+    wsService.addMessageHandler(handleWebSocketMessage);
+    wsService.requestScheduledBuses(selectedBusStop._id);
 
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+        // Cleanup WebSocket listener when component unmounts
+        wsService.messageHandlers = wsService.messageHandlers.filter(handler => handler !== handleWebSocketMessage);
+    };
+}, [selectedBusStop]);
+
 
 
 

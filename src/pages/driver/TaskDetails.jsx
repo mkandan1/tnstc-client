@@ -37,6 +37,13 @@ const TaskDetails = () => {
     if (taskId) fetchTaskDetails();
   }, [taskId]);
 
+  useEffect(() => {
+    if (taskDetails?.status === "On Route") {
+      startLocationTracking();
+    }
+  }, [taskDetails]);
+  
+
   // Start Ride
   const handleStartRide = async () => {
 
@@ -52,6 +59,7 @@ const TaskDetails = () => {
         try {
           console.log("Sending start ride request...");
           await scheduledBusService.startRide(taskId, {
+            type: "locationUpdate",
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
             routeId: taskDetails.route._id,
@@ -116,7 +124,7 @@ const TaskDetails = () => {
         geolocationOptions // ✅ Pass high accuracy options
       );
 
-    }, 2000); // Updates location every 10 seconds
+    }, 2000);
 
     setLocationUpdateInterval(intervalId);
   };

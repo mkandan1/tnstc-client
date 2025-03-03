@@ -3,6 +3,7 @@ import { scheduledBusService } from '../../services';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { convertToIST, getISTTime } from '../../util/convertToIST';
 import { calculateETA, calculateJourneyProgress, calculateStartTime, getRemainingTime, getTimeAgo } from '../../util/time';
+import wsService from '../../services/webSocketService';
 
 const LeftSidePanel = ({ selectedBusStop }) => {
     const [scheduledBuses, setScheduledBuses] = useState([]);
@@ -10,25 +11,27 @@ const LeftSidePanel = ({ selectedBusStop }) => {
     const [selectedBus, setSelectedBus] = useState(null);
 
     useEffect(() => {
-        if (selectedBusStop) {
-            const getSchedules = async () => {
-                try {
-                    const response = await scheduledBusService.getAllScheduledBuses({ busStop: selectedBusStop._id, status: ['Scheduled', "On Route"] });
-                    if (response) {
-                        setScheduledBuses(response);
-                    } else {
-                        console.error("Unexpected response format:", response);
-                    }
-                } catch (error) {
-                    console.error("Error fetching schedules:", error);
-                }
-            };
-
-            getSchedules();
-            const intervalId = setInterval(getSchedules, 5000);
-            return () => clearInterval(intervalId);
-        }
+        if (!selectedBusStop?._id) return;
+    
+        const handleWebSocketMessage = (data) => {
+            if (data.type === "busStopResponse") {
+                setScheduledBuses(data.buses);
+            }
+        };
+    
+        wsService.addMessageHandler(handleWebSocketMessage);
+    
+        const intervalId = setInterval(() => {
+            wsService.requestScheduledBuses(selectedBusStop._id, ['On Route', 'Scheduled']);
+        }, 1000);
+    
+        return () => {
+            wsService.messageHandlers = wsService.messageHandlers.filter(handler => handler !== handleWebSocketMessage);
+            clearInterval(intervalId);
+        };
     }, [selectedBusStop]);
+    
+    
 
     const toggleExpand = () => {
         setIsExpanded(!isExpanded);
