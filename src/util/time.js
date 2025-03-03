@@ -19,13 +19,13 @@ export const calculateETA = (busData, selectedBusStop) => {
   if (!busData?.location || !selectedBusStop?.coordinates) return "0 min";
 
   const { latitude, longitude } = busData.location;
-  const busSpeed = busData.speed || 30; // Default to 30 km/h if speed is 0
+  const busSpeed = busData.speed; // Default to 30 km/h if speed is 0
 
   const { lat, lng } = selectedBusStop.coordinates;
   const distance = haversineDistance(latitude, longitude, lat, lng); // Distance in km
 
   if (distance === null || isNaN(distance)) return "Unable to calculate distance";
-  if (distance < 0.05) return "Arriving soon"; // Less than 50 meters
+  if (distance < 0.10) return "Arriving soon"; // Less than 50 meters
   if (busSpeed === 0) return "Bus is not moving";
 
   const timeInHours = distance / busSpeed;

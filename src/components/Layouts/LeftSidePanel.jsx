@@ -210,7 +210,7 @@ const LeftSidePanel = ({ selectedBusStop }) => {
 
 
                             {/* Progress Bar */}
-                            <div className="mt-5 relative">
+                            {/* <div className="mt-5 relative">
                                 <div className="w-full h-1 bg-gray-300 rounded-full">
                                     <div className="h-1 bg-yellow-500 rounded-full" style={{ width: `${selectedBus?.journeyCompletion}%` }}></div>
                                 </div>
@@ -221,12 +221,12 @@ const LeftSidePanel = ({ selectedBusStop }) => {
                                     <Icon icon="mingcute:bus-2-fill" className="text-gray-700 text-lg" />
                                 </div>
 
-                            </div>
+                            </div> */}
 
                             {/* Distance & Time Remaining */}
                             <div className="flex justify-between text-xs text-gray-500 mt-5">
-                                <span>{selectedBus.distanceTraveled | 0} km, {getTimeAgo(selectedBus.actualTime)}</span>
-                                <span>{selectedBus.distanceRemaining | 0} km, in {calculateETA(selectedBus, selectedBusStop)}</span>
+                                <span>{selectedBus.distanceTraveled} km, {getTimeAgo(selectedBus.actualTime)}</span>
+                                <span>{selectedBus.distanceRemaining} km, in {calculateETA(selectedBus, selectedBus?.destination)}</span>
                             </div>
                             <div className="flex justify-between text-xs text-gray-500 mt-5">
                                 <span>{selectedBus.speed | 0} km speed</span>
