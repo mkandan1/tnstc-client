@@ -122,7 +122,7 @@ const LeftSidePanel = ({ selectedBusStop }) => {
                                                 ) : (
                                                     <>
                                                         {
-                                                            !checkIfBusLeftStop(bus, selectedBusStop) && (
+                                                            checkIfBusLeftStop(bus, selectedBusStop) !== '-' && (
                                                                 <p className="text-sm font-medium">
                                                                     Reach in: <span className="text-yellow-300 font-semibold">
                                                                         {calculateETA(bus, selectedBusStop)}
