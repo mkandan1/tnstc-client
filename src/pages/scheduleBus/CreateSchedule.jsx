@@ -9,6 +9,7 @@ import routeService from "../../services/route.service";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { TabContainer } from "../../components/Layouts/TabContainer";
+import { convertISTtoUTC, convertToISTForInput } from "../../util/convertToIST";
 
 const CreateSchedule = () => {
   const { id } = useParams();
@@ -56,14 +57,13 @@ const CreateSchedule = () => {
   }, [id]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
 
     if (name === "scheduleTime") {
-      // Convert local time to UTC before saving
-      const utcTime = DateTime.fromISO(value, { zone: "local" }).toUTC().toISO();
+      const utcTime = convertISTtoUTC(value);
       setSchedule((prev) => ({ ...prev, scheduleTime: utcTime }));
     } else {
-      setSchedule((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+      setSchedule((prev) => ({ ...prev, [name]: value }));
     }
   };
 
@@ -127,7 +127,7 @@ const CreateSchedule = () => {
 
               <div>
                 <label>Schedule Time</label>
-                <TextInput type="datetime-local" name="scheduleTime" value={schedule?.scheduleTime} onChange={handleChange} required />
+                <TextInput type="datetime-local" name="scheduleTime" value={convertToISTForInput(schedule.scheduleTime)} onChange={handleChange} required />
               </div>
 
               <div>
