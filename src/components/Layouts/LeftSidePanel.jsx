@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { scheduledBusService } from '../../services';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { getISTTime } from '../../util/convertToIST';
-import { calculateETA, calculateJourneyProgress, calculateStartTime, getRemainingTime, getTimeAgo } from '../../util/time';
+import { calculateETA, calculateStartTime, getTimeAgo } from '../../util/time';
 import wsService from '../../services/webSocketService';
 
 const LeftSidePanel = ({ selectedBusStop }) => {
@@ -12,26 +11,26 @@ const LeftSidePanel = ({ selectedBusStop }) => {
 
     useEffect(() => {
         if (!selectedBusStop?._id) return;
-    
+
         const handleWebSocketMessage = (data) => {
             if (data.type === "busStopResponse") {
                 setScheduledBuses(data.buses);
             }
         };
-    
+
         wsService.addMessageHandler(handleWebSocketMessage);
-    
+
         const intervalId = setInterval(() => {
             wsService.requestScheduledBuses(selectedBusStop._id, ['On Route', 'Scheduled']);
         }, 1000);
-    
+
         return () => {
             wsService.messageHandlers = wsService.messageHandlers.filter(handler => handler !== handleWebSocketMessage);
             clearInterval(intervalId);
         };
     }, [selectedBusStop]);
-    
-    
+
+
 
     const toggleExpand = () => {
         setIsExpanded(!isExpanded);
@@ -43,6 +42,20 @@ const LeftSidePanel = ({ selectedBusStop }) => {
 
     const goBackToList = () => {
         setSelectedBus(null);
+    };
+
+    const checkIfBusLeftStop = (bus, selectedBusStop) => {
+        const leftAtStop = bus.leftAt.find(item => item.stop.toString() === selectedBusStop._id.toString());
+if (leftAtStop) {
+    const time = new Date(leftAtStop.time);
+    const hours = time.getHours();
+    const minutes = time.getMinutes();
+    
+    const formattedTime = `${(hours % 12 || 12)}:${minutes < 10 ? '0' + minutes : minutes} ${hours >= 12 ? 'PM' : 'AM'}`;
+    return formattedTime;
+}
+
+        return null;
     };
 
     return (
@@ -101,13 +114,31 @@ const LeftSidePanel = ({ selectedBusStop }) => {
                                         <div className="mt-2 flex items-center space-x-2 bg-[#4f4f4f] text-white p-2 rounded-lg shadow-md">
                                             <Icon icon="mdi:clock-outline" className="text-yellow-400 text-lg" />
                                             {
-                                                bus.status == "Scheduled" ? (
+                                                bus.status === "Scheduled" ? (
                                                     <p className="text-sm font-medium">
                                                         Starting in: <span className="text-yellow-300 font-semibold">{calculateStartTime(bus.scheduleTime)}</span>
                                                     </p>
                                                 ) : (
+                                                    <>
+                                                        {
+                                                            !checkIfBusLeftStop(bus, selectedBusStop) && (
+                                                                <p className="text-sm font-medium">
+                                                                    Reach in: <span className="text-yellow-300 font-semibold">
+                                                                        {calculateETA(bus, selectedBusStop)}
+                                                                    </span>
+                                                                </p>
+                                                            )
+                                                        }
+                                                    </>
+                                                )
+                                            }
+
+                                            {
+                                                bus.status !== "Scheduled" && checkIfBusLeftStop(bus, selectedBusStop) && (
                                                     <p className="text-sm font-medium">
-                                                        Reach in: <span className="text-yellow-300 font-semibold">{calculateETA(bus, selectedBusStop)}</span>
+                                                        Left at: <span className="text-yellow-300 font-semibold">
+                                                            {new Date(checkIfBusLeftStop(bus, selectedBusStop)).toLocaleTimeString()}
+                                                        </span>
                                                     </p>
                                                 )
                                             }
@@ -212,11 +243,11 @@ const LeftSidePanel = ({ selectedBusStop }) => {
                             {/* Progress Bar */}
                             <div className="mt-5 relative">
                                 <div className="w-full h-1 bg-gray-300 rounded-full">
-                                    <div className="h-1 bg-yellow-500 rounded-full" style={{ width: `${selectedBus?.journeyCompletion}%` }}></div>
+                                    <div className="h-1 bg-yellow-500 rounded-full" style={{ width: `${selectedBus.journeyCompletion}%` }}></div>
                                 </div>
                                 <div
                                     className="absolute top-[-10px] transform -translate-x-1/2 border border-yellow-300 bg-white p-1 rounded-full"
-                                    style={{ left: `${selectedBus?.journeyCompletion}%` }}
+                                    style={{ left: `${selectedBus.journeyCompletion}%` }}
                                 >
                                     <Icon icon="mingcute:bus-2-fill" className="text-gray-700 text-lg" />
                                 </div>
@@ -226,7 +257,7 @@ const LeftSidePanel = ({ selectedBusStop }) => {
                             {/* Distance & Time Remaining */}
                             <div className="flex justify-between text-xs text-gray-500 mt-5">
                                 <span>{selectedBus.distanceTraveled} km, {getTimeAgo(selectedBus.actualTime)}</span>
-                                <span>{selectedBus.distanceRemaining} km, in {calculateETA(selectedBus, selectedBus?.destination)}</span>
+                                <span>{selectedBus.distanceRemaining} km, in {calculateETA(selectedBus, selectedBus.destination)}</span>
                             </div>
                             <div className="flex justify-between text-xs text-gray-500 mt-5">
                                 <span>{selectedBus.speed | 0} km speed</span>
