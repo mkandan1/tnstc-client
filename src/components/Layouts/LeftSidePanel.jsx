@@ -147,7 +147,7 @@ const LeftSidePanel = ({ selectedBusStop }) => {
                                                             <p className="text-sm font-medium">
                                                                 Arriving <span className="text-yellow-300 font-semibold ml-1">
                                                                     {selectedBusStop.name}
-                                                                </span> in
+                                                                </span>
                                                                 <span className="text-yellow-300 font-semibold ml-1">
                                                                     {calculateETA(bus, selectedBusStop)}
                                                                 </span>
@@ -284,7 +284,7 @@ const LeftSidePanel = ({ selectedBusStop }) => {
                             {/* Distance & Time Remaining */}
                             <div className="flex justify-between text-xs text-gray-500 mt-5">
                                 <span>{selectedBus.distanceTraveled} km, {getTimeAgo(selectedBus.actualTime)}</span>
-                                <span>{selectedBus.distanceRemaining} km, in {calculateETA(selectedBus, selectedBus.destination)}</span>
+                                <span>{selectedBus.distanceRemaining} km, {calculateETA(selectedBus, selectedBus.destination)}</span>
                             </div>
                             <div className="flex justify-between text-xs text-gray-500 mt-5">
                                 <span>{selectedBus.speed | 0} km speed</span>

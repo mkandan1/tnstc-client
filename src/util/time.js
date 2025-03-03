@@ -25,20 +25,20 @@ export const calculateETA = (busData, selectedBusStop) => {
   const distance = haversineDistance(latitude, longitude, lat, lng); // Distance in km
 
   if (distance === null || isNaN(distance)) return "Unable to calculate distance";
-  if (distance < 0.20) return "Arriving soon"; // Less than 50 meters
+  if (distance < 0.20) return "soon"; // Less than 50 meters
   if (busSpeed === 0) return "-";
 
   const timeInHours = distance / busSpeed;
   const timeInMinutes = Math.round(timeInHours * 60);
 
   if (timeInMinutes < 60) {
-    return `${timeInMinutes} min`;
+    return `in ${timeInMinutes} min`;
   } else if (timeInHours < 24) {
-    return `${Math.floor(timeInHours)} hr ${timeInMinutes % 60} min`;
+    return `in ${Math.floor(timeInHours)} hr ${timeInMinutes % 60} min`;
   } else {
     const days = Math.floor(timeInHours / 24);
     const remainingHours = Math.floor(timeInHours % 24);
-    return `${days} day${days > 1 ? "s" : ""} ${remainingHours} hr`;
+    return `in ${days} day${days > 1 ? "s" : ""} ${remainingHours} hr`;
   }
 };
 
