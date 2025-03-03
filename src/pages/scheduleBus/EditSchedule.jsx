@@ -12,6 +12,9 @@ import { TabContainer } from "../../components/Layouts/TabContainer";
 import toast from "react-hot-toast";
 import urlService from "../../services/url.service";
 
+import { DateTime } from "luxon"; // Ensure you have luxon installed
+import { convertISTtoUTC, convertToIST, convertToISTForInput } from "../../util/convertToIST";
+
 const EditSchedule = () => {
   const { id } = useParams();
   const scheduleId = urlService.getId();
@@ -42,7 +45,6 @@ const EditSchedule = () => {
           driverService.getAllDrivers(),
           routeService.getAllRoutes(),
         ]);
-
         setBuses(busData.buses);
         setDrivers(driverData);
         setRoutes(routeData);
@@ -53,7 +55,7 @@ const EditSchedule = () => {
             bus: data?.bus?._id || "",
             driver: data?.driver?._id || "",
             route: data?.route?._id || "",
-            scheduleTime: data?.scheduleTime ? formatDateTime(data.scheduleTime) : "",
+            scheduleTime: data?.scheduleTime,
             status: data?.status || "Scheduled",
           });
         }
@@ -67,10 +69,18 @@ const EditSchedule = () => {
     fetchData();
   }, [id]);
 
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setSchedule((prev) => ({ ...prev, [name]: value }));
+  
+    if (name === "scheduleTime") {
+      const utcTime = convertISTtoUTC(value); 
+      setSchedule((prev) => ({ ...prev, scheduleTime: utcTime }));
+    } else {
+      setSchedule((prev) => ({ ...prev, [name]: value }));
+    }
   };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -154,7 +164,7 @@ const EditSchedule = () => {
                   type="datetime-local"
                   id="scheduleTime"
                   name="scheduleTime"
-                  value={schedule.scheduleTime}
+                  value={convertToISTForInput(schedule.scheduleTime)}
                   onChange={handleChange}
                   required
                 />

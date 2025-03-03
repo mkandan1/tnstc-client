@@ -57,7 +57,14 @@ const CreateSchedule = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setSchedule({ ...schedule, [name]: type === "checkbox" ? checked : value });
+
+    if (name === "scheduleTime") {
+      // Convert local time to UTC before saving
+      const utcTime = DateTime.fromISO(value, { zone: "local" }).toUTC().toISO();
+      setSchedule((prev) => ({ ...prev, scheduleTime: utcTime }));
+    } else {
+      setSchedule((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    }
   };
 
   const handleSubmit = async () => {

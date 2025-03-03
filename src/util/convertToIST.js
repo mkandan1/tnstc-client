@@ -13,6 +13,21 @@ export const convertToIST = (isoString) => {
   return date.setZone("Asia/Kolkata").toFormat("dd-MM-yyyy hh:mm:ss a");
 };
 
+export const convertISTtoUTC = (istString) => {
+  if (!istString) return null;
+
+  return DateTime.fromFormat(istString, "yyyy-MM-dd'T'HH:mm", { zone: "Asia/Kolkata" })
+    .toUTC()
+    .toISO({ suppressMilliseconds: true });
+};
+
+export const convertToISTForInput = (isoString) => {
+  if (!isoString) return "";
+
+  return DateTime.fromISO(isoString, { zone: "utc" })
+    .setZone("Asia/Kolkata")
+    .toFormat("yyyy-MM-dd'T'HH:mm"); // Correct format for input
+};
 
 export const getISTTime = (isoString) => {
   if (!isoString) return "-";
