@@ -49,7 +49,7 @@ const LeftSidePanel = ({ selectedBusStop }) => {
     
         if (leftAtStop) {
     
-            const formattedTime = convertToIST(leftAtStop.time);
+            const formattedTime = getISTTime(leftAtStop.time);
     
             if (formattedTime === "Invalid Date") {
                 console.error("❌ Failed to convert:", leftAtStop.time);

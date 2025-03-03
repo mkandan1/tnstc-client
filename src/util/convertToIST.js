@@ -13,23 +13,6 @@ export const convertToIST = (isoString) => {
   return date.setZone("Asia/Kolkata").toFormat("dd-MM-yyyy hh:mm:ss a");
 };
 
-export const convertToISTTime = (isoString) => {
-  if (!isoString) return "Invalid Date";
-
-  const timeString = isoString?.$date || isoString; // Handle MongoDB date format
-
-  let date = DateTime.fromISO(timeString, { zone: "utc" });
-
-  if (!date.isValid) {
-    date = DateTime.fromMillis(Date.parse(timeString), { zone: "utc" });
-  }
-
-  return date.isValid
-    ? date.setZone("Asia/Kolkata").toFormat("h:mm a") // Removed seconds
-    : "Invalid Date";
-};
-
-
 export const convertISTtoUTC = (istString) => {
   if (!istString) return null;
 
