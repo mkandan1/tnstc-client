@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Icon } from '@iconify/react/dist/iconify.js';
-import { convertToIST, convertToISTTime, getISTTime } from '../../util/convertToIST';
+import { convertToIST, getISTTime } from '../../util/convertToIST';
 import { calculateETA, calculateStartTime, getTimeAgo } from '../../util/time';
 import wsService from '../../services/webSocketService';
 
@@ -51,15 +51,10 @@ const LeftSidePanel = ({ selectedBusStop }) => {
     
             const formattedTime = getISTTime(leftAtStop.time);
     
-            if (formattedTime === "Invalid Date") {
-                console.error("❌ Failed to convert:", leftAtStop.time);
-                return "-";
-            }
-    
             return formattedTime;
         }
     
-        return null;
+        return '-';
     };
     
     
@@ -117,8 +112,8 @@ const LeftSidePanel = ({ selectedBusStop }) => {
                                             <p className="text-gray-400">{bus.route.routeName}</p>
                                         )}
 
-                                        <div className="mt-2 flex items-center space-x-2 bg-[#4f4f4f] text-white p-2 rounded-lg shadow-md">
-                                            <Icon icon="mdi:clock-outline" className="text-yellow-400 text-lg" />
+                                        <div className="mt-2 flex items-center space-x-1 bg-[#4f4f4f] text-white p-2 rounded-lg shadow-md">
+                                            <Icon icon="mdi:clock-outline" className="text-yellow-400 text-sm" />
                                             {
                                                 bus.status === "Scheduled" ? (
                                                     <p className="text-sm font-medium">
@@ -141,9 +136,9 @@ const LeftSidePanel = ({ selectedBusStop }) => {
 
                                             {
                                                 bus.status !== "Scheduled" && checkIfBusLeftStop(bus, selectedBusStop) && (
-                                                    <p className="text-sm font-medium">
-                                                        Left at: <span className="text-yellow-300 font-semibold">
-                                                            {new Date(checkIfBusLeftStop(bus, selectedBusStop)).toLocaleTimeString()}
+                                                    <p className="text-sm font-medium text-gray-400">
+                                                        Left <span className='text-gray-300'>{selectedBusStop.name}</span> at <span className="text-yellow-300 font-semibold">
+                                                            {checkIfBusLeftStop(bus, selectedBusStop)}
                                                         </span>
                                                     </p>
                                                 )
