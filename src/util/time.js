@@ -25,8 +25,8 @@ export const calculateETA = (busData, selectedBusStop) => {
   const distance = haversineDistance(latitude, longitude, lat, lng); // Distance in km
 
   if (distance === null || isNaN(distance)) return "Unable to calculate distance";
-  if (distance < 0.10) return "Arriving soon"; // Less than 50 meters
-  if (busSpeed === 0) return "Bus is not moving";
+  if (distance < 0.20) return "Arriving soon"; // Less than 50 meters
+  if (busSpeed === 0) return "-";
 
   const timeInHours = distance / busSpeed;
   const timeInMinutes = Math.round(timeInHours * 60);

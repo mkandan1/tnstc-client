@@ -46,18 +46,18 @@ const LeftSidePanel = ({ selectedBusStop }) => {
 
     const checkIfBusLeftStop = (bus, selectedBusStop) => {
         const leftAtStop = bus.leftAt.find(item => item.stop.toString() === selectedBusStop._id.toString());
-    
+
         if (leftAtStop) {
-    
+
             const formattedTime = getISTTime(leftAtStop.time);
-    
+
             return formattedTime;
         }
-    
-        return '-';
+
+        return null;
     };
-    
-    
+
+
 
     return (
         <div className="text-white bg-[#303030] z-20 absolute top-20 left-5 md:left-10 shadow-lg rounded-lg w-80">
@@ -112,37 +112,63 @@ const LeftSidePanel = ({ selectedBusStop }) => {
                                             <p className="text-gray-400">{bus.route.routeName}</p>
                                         )}
 
-                                        <div className="mt-2 flex items-center space-x-1 bg-[#4f4f4f] text-white p-2 rounded-lg shadow-md">
-                                            <Icon icon="mdi:clock-outline" className="text-yellow-400 text-sm" />
-                                            {
-                                                bus.status === "Scheduled" ? (
+                                        <div className="mt-2 flex flex-col gap-2 bg-[#4f4f4f] text-white p-3 rounded-lg shadow-md">
+                                            <div className="flex items-center space-x-2">
+                                                {bus.status === "Scheduled" ? (
+                                                    <Icon icon="mdi:clock-outline" className="text-yellow-400 text-lg" />
+                                                ) : checkIfBusLeftStop(bus, selectedBusStop) ? (
+                                                    <Icon icon="mdi:check-circle-outline" className="text-green-400 text-lg" />
+                                                ) : (
+                                                    <Icon icon="mdi:map-marker-outline" className="text-blue-400 text-lg" />
+                                                )}
+
+                                                {bus.status === "Scheduled" ? (
                                                     <p className="text-sm font-medium">
-                                                        Starting in: <span className="text-yellow-300 font-semibold">{calculateStartTime(bus.scheduleTime)}</span>
+                                                        Starting in:
+                                                        <span className="text-yellow-300 font-semibold ml-1">
+                                                            {calculateStartTime(bus.scheduleTime)}
+                                                        </span>
                                                     </p>
                                                 ) : (
                                                     <>
-                                                        {
-                                                            checkIfBusLeftStop(bus, selectedBusStop) !== '-' && (
-                                                                <p className="text-sm font-medium">
-                                                                    Reach in: <span className="text-yellow-300 font-semibold">
-                                                                        {calculateETA(bus, selectedBusStop)}
-                                                                    </span>
-                                                                </p>
-                                                            )
-                                                        }
+                                                        {checkIfBusLeftStop(bus, selectedBusStop) ? (
+                                                            // If bus has left, show "Arrived at"
+                                                            <p className="text-sm font-medium">
+                                                                Arrived at
+                                                                <span className="text-yellow-300 font-semibold ml-1">
+                                                                    {selectedBusStop.name}
+                                                                </span> at
+                                                                <span className="text-yellow-300 font-semibold ml-1">
+                                                                    {checkIfBusLeftStop(bus, selectedBusStop)}
+                                                                </span>
+                                                            </p>
+                                                        ) : (
+                                                            // If bus hasn't left, show "Arriving in"
+                                                            <p className="text-sm font-medium">
+                                                                Arriving <span className="text-yellow-300 font-semibold ml-1">
+                                                                    {selectedBusStop.name}
+                                                                </span> in
+                                                                <span className="text-yellow-300 font-semibold ml-1">
+                                                                    {calculateETA(bus, selectedBusStop)}
+                                                                </span>
+                                                            </p>
+                                                        )}
                                                     </>
-                                                )
-                                            }
+                                                )}
+                                            </div>
 
-                                            {
-                                                bus.status !== "Scheduled" && checkIfBusLeftStop(bus, selectedBusStop) && (
-                                                    <p className="text-sm font-medium text-gray-400">
-                                                        Left <span className='text-gray-300'>{selectedBusStop.name}</span> at <span className="text-yellow-300 font-semibold">
+
+                                            {bus.status !== "Scheduled" && checkIfBusLeftStop(bus, selectedBusStop) && (
+                                                <div className="flex items-center space-x-2 text-gray-200">
+                                                    <Icon icon="mdi:map-marker-outline" className="text-gray-200 text-lg" />
+                                                    <p className="text-sm font-medium">
+                                                        Left <span className="text-yellow-300 font-semibold">{selectedBusStop.name}</span> at
+                                                        <span className="text-yellow-300 font-semibold ml-1">
                                                             {checkIfBusLeftStop(bus, selectedBusStop)}
                                                         </span>
                                                     </p>
-                                                )
-                                            }
+                                                </div>
+                                            )}
                                         </div>
 
                                     </div>
