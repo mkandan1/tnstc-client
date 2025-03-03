@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { scheduledBusService } from '../../services';
 import { Icon } from '@iconify/react/dist/iconify.js';
-import { convertToIST, getISTTime } from '../../util/convertToIST';
+import { getISTTime } from '../../util/convertToIST';
 import { calculateETA, calculateJourneyProgress, calculateStartTime, getRemainingTime, getTimeAgo } from '../../util/time';
 import wsService from '../../services/webSocketService';
 
