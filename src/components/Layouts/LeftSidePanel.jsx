@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Icon } from '@iconify/react/dist/iconify.js';
-import { getISTTime } from '../../util/convertToIST';
+import { convertToIST, convertToISTTime, getISTTime } from '../../util/convertToIST';
 import { calculateETA, calculateStartTime, getTimeAgo } from '../../util/time';
 import wsService from '../../services/webSocketService';
 
@@ -46,17 +46,23 @@ const LeftSidePanel = ({ selectedBusStop }) => {
 
     const checkIfBusLeftStop = (bus, selectedBusStop) => {
         const leftAtStop = bus.leftAt.find(item => item.stop.toString() === selectedBusStop._id.toString());
-if (leftAtStop) {
-    const time = new Date(leftAtStop.time);
-    const hours = time.getHours();
-    const minutes = time.getMinutes();
     
-    const formattedTime = `${(hours % 12 || 12)}:${minutes < 10 ? '0' + minutes : minutes} ${hours >= 12 ? 'PM' : 'AM'}`;
-    return formattedTime;
-}
-
+        if (leftAtStop) {
+    
+            const formattedTime = convertToIST(leftAtStop.time);
+    
+            if (formattedTime === "Invalid Date") {
+                console.error("❌ Failed to convert:", leftAtStop.time);
+                return "-";
+            }
+    
+            return formattedTime;
+        }
+    
         return null;
     };
+    
+    
 
     return (
         <div className="text-white bg-[#303030] z-20 absolute top-20 left-5 md:left-10 shadow-lg rounded-lg w-80">
