@@ -16,17 +16,17 @@ export const convertToIST = (isoString) => {
 export const convertToISTTime = (isoString) => {
   if (!isoString) return "Invalid Date";
 
-  const timeString = isoString.$date || isoString; // Extract date if stored as an object
+  const timeString = isoString?.$date || isoString; // Handle MongoDB date format
 
   let date = DateTime.fromISO(timeString, { zone: "utc" });
 
   if (!date.isValid) {
-      date = DateTime.fromMillis(Date.parse(timeString), { zone: "utc" });
+    date = DateTime.fromMillis(Date.parse(timeString), { zone: "utc" });
   }
 
   return date.isValid
-      ? date.setZone("Asia/Kolkata").toFormat("hh:mm a")
-      : "Invalid Date";
+    ? date.setZone("Asia/Kolkata").toFormat("h:mm a") // Removed seconds
+    : "Invalid Date";
 };
 
 
