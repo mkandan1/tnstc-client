@@ -15,7 +15,7 @@ export const Sidebar = () => {
     const navigate = useNavigate();
     const isOpen = useSelector(state => state.sidebar.isOpen);
     const { user } = useSelector((state) => state.user);
-    
+
     // Loading state for determining user role
     const [loading, setLoading] = useState(true);
 
@@ -43,9 +43,8 @@ export const Sidebar = () => {
             );
 
             let serverResponse = await logoutPromise;
-            if (serverResponse) {
-                delayedNavigation('/login', 3000);
-            }
+            delayedNavigation('/login', 3000);
+
         } catch (error) {
             console.error('Logout failed:', error);
         }
@@ -61,7 +60,7 @@ export const Sidebar = () => {
                     </button>
                 </div>
                 <div className="h-[0.10px] md:hidden w-full bg-blueGray-700"></div>
-                
+
                 {/* Show loading indicator while determining user role */}
                 <div className="my-5 md:my-8">
                     {loading ? (
