@@ -6,7 +6,7 @@ import wsService from "../../services/webSocketService";
 const API_KEY = import.meta.env.VITE_MAP_API_KEY;
 const BUS_STOP_ICON = "/bus-stop.png";
 const BUS_ICON = "/bus.png";
-const DING_SOUND = "/ding.mpeg"; // Add this sound file in your public folder
+const DING_SOUND = "/ding.mp3"; 
 const DEFAULT_CENTER = [78.4445, 10.9536];
 
 export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
@@ -118,17 +118,39 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
     return nearest;
   };
 
+  useEffect(() => {
+    const handleWebSocketMessage = (data) => {
+      if (data.type === "busStopResponse") {
+        updateBusMarkers(data.buses);
+      }
+  
+      if (data.type === "announcement") {
+        playDingSound();
+        setTimeout(() => {
+          speakAnnouncement(data.message);
+        }, 2000); // 2s delay after ding sound
+      }
+    };
+  
+    wsService.addMessageHandler(handleWebSocketMessage);
+  
+    return () => {
+      wsService.messageHandlers = wsService.messageHandlers.filter(handler => handler !== handleWebSocketMessage);
+    };
+  }, []);
+  
+
   const updateBusMarkers = (buses) => {
     if (!mapInstance.current || !mapRef.current) return;
-  
+
     buses.forEach((bus) => {
       if (!bus.location?.latitude || !bus.location?.longitude) return;
-  
+
       const { latitude, longitude } = bus.location;
       const busId = bus._id;
-  
+
       let marker = busMarkers.current.get(busId);
-  
+
       if (marker) {
         // Get current marker position
         const currentLngLat = marker.getLngLat();
@@ -136,21 +158,21 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
         const end = { lng: longitude, lat: latitude };
         const duration = 2000; // 2 seconds animation
         let startTime;
-  
+
         const animate = (timestamp) => {
           if (!startTime) startTime = timestamp;
           const progress = Math.min((timestamp - startTime) / duration, 1); // Normalize progress
-  
+
           const interpolatedLng = start.lng + (end.lng - start.lng) * progress;
           const interpolatedLat = start.lat + (end.lat - start.lat) * progress;
-  
+
           marker.setLngLat([interpolatedLng, interpolatedLat]);
-  
+
           if (progress < 1) {
             requestAnimationFrame(animate);
           }
         };
-  
+
         requestAnimationFrame(animate);
       } else {
         const el = document.createElement("div");
@@ -159,17 +181,17 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
         el.style.width = "30px";
         el.style.height = "30px";
         el.style.backgroundSize = "cover";
-  
+
         marker = new mapboxgl.Marker({ element: el })
           .setLngLat([longitude, latitude])
           .setPopup(new mapboxgl.Popup().setText(`Bus ${bus.bus?.busNumber}`))
           .addTo(mapInstance.current);
-  
+
         busMarkers.current.set(busId, marker);
       }
     });
   };
-  
+
   // Play "ding-ding" sound
   const playDingSound = () => {
 
@@ -181,12 +203,28 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
 
   // Speak the announcement
   const speakAnnouncement = (message) => {
-    if (responsiveVoice.voiceSupport()) {
-      responsiveVoice.speak(message, "Tamil Female");
+    if (!isUserInteracted) {
+      console.warn("🚫 Audio not unlocked yet! Waiting for user interaction.");
+      return;
+    }
+  
+    if (typeof responsiveVoice !== "undefined" && responsiveVoice.voiceSupport()) {
+      responsiveVoice.speak(message, "Tamil Female", {
+        rate: 0.9, // Adjust speaking speed if needed
+        onstart: () => console.log("📢 Speaking started"),
+        onend: () => console.log("✅ Speech completed"),
+        onerror: (e) => console.error("⚠️ Speech error:", e),
+      });
     } else {
-      console.warn("ResponsiveVoice is not loaded");
+      console.warn("⚠️ ResponsiveVoice is not available or not loaded yet.");
     }
   };
+  
+  // Request notification permission on page load
+  useEffect(() => {
+    Notification.requestPermission();
+  }, []);
+
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -201,7 +239,7 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
     if (!buses.length) return;
 
     let announcementMessage = `${getGreeting()} பயணிகளின் கனிவான கவனத்திற்கு! `;
-
+    console.log(buses)
     buses.forEach((bus) => {
       const nearestStop = findNearestBusStop(busStops, {
         lat: bus.location.latitude,
@@ -228,42 +266,19 @@ export const LiveTrackingMap = ({ zoom = 10, selectedBusStop }) => {
 
     // Function to handle WebSocket messages
     const handleWebSocketMessage = (data) => {
-        if (data.type === "busStopResponse") {
-            updateBusMarkers(data.buses);
-        }
+      if (data.type === "busStopResponse") {
+        updateBusMarkers(data.buses);
+      }
     };
 
     wsService.addMessageHandler(handleWebSocketMessage);
     wsService.requestScheduledBuses(selectedBusStop._id);
 
     return () => {
-        // Cleanup WebSocket listener when component unmounts
-        wsService.messageHandlers = wsService.messageHandlers.filter(handler => handler !== handleWebSocketMessage);
+      // Cleanup WebSocket listener when component unmounts
+      wsService.messageHandlers = wsService.messageHandlers.filter(handler => handler !== handleWebSocketMessage);
     };
-}, [selectedBusStop]);
-
-
-
-
-  // Make announcement every 5 mins
-  useEffect(() => {
-    const fetchAndAnnounce = async () => {
-      try {
-        const response = await scheduledBusService.getAllScheduledBuses({
-          busStop: selectedBusStop._id, 
-          status: ["On Route"],
-        });
-        makePeriodicAnnouncements(response);
-      } catch (error) {
-        console.error("Error fetching buses:", error);
-      }
-    };
-
-    fetchAndAnnounce();
-    const interval = setInterval(fetchAndAnnounce, 300000); // 5 minutes
-
-    return () => clearInterval(interval);
-  }, []);
+  }, [selectedBusStop]);
 
   return (
     <div className="w-full h-screen relative">
